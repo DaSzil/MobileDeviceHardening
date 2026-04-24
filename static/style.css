@@ -1,0 +1,272 @@
+body {
+  font-family: Montserrat;
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 0 20px;
+  background: #fff;
+  color: #222;
+}
+
+h1 { font-size: 1.2rem; margin-bottom: 4px; }
+p.sub { color: #888; font-size: 0.8rem; margin-bottom: 24px; }
+
+button {
+  font-family: Montserrat;
+  padding: 6px 16px;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+#status {
+  font-size: 0.8rem;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+/* Device info */
+#device-info {
+  display: none;
+  border: 1px solid #ddd;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+#device-info h2 { font-size: 1rem; margin-bottom: 8px; }
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px 16px;
+}
+
+.device-field span:first-child { color: #888; display: block; font-size: 0.72rem; }
+.device-field span:last-child  { font-weight: bold; }
+
+/* Score */
+#score-section {
+  display: none;
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+#score-section h2 { font-size: 1rem; margin-bottom: 6px; }
+
+.score-bar-wrap {
+  background: #eee;
+  height: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 6px;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: #222;
+  transition: width 0.6s ease;
+}
+
+/* Table */
+#results-section { display: none; }
+#results-section h2 { font-size: 0.85rem; margin-bottom: 8px; }
+
+.filter-row {
+  margin-bottom: 10px;
+  font-size: 0.8rem;
+}
+
+.filter-row button {
+  margin: 0 4px 0 0;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Keep this! It's the anchor. */
+  margin: 0 auto;
+  background: #fff;
+}
+
+/* LOCK THE LANES: Total = ~1000px-1100px */
+th:nth-child(1), td:nth-child(1) { width: 50px; text-align: center; } /* Checkbox */
+th:nth-child(2), td:nth-child(2) { width: 60px; }                    /* ID */
+th:nth-child(3), td:nth-child(3) { width: auto; }                   /* Title (THE FLEXIBLE ONE) */
+th:nth-child(4), td:nth-child(4) { width: 90px; }                    /* Status */
+th:nth-child(5), td:nth-child(5) { width: 160px; }                   /* Found */
+th:nth-child(6), td:nth-child(6) { width: 110px; text-align: center; } /* Action */
+
+th, td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevents text from pushing row height up */
+}
+
+th { color: #888; font-weight: normal; border-bottom: 1px solid #ccc; }
+
+.pass   { color: green; }
+.fail   { color: red; }
+.manual { color: darkorange; }
+.na    { color: grey ; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* The Status Indicator Light */
+.status-container {
+display: flex;
+align-items: center;
+margin-bottom: 20px;
+font-weight: bold;
+color: #333;
+}
+
+.indicator-light {
+display: inline-block;
+width: 14px;
+height: 14px;
+border-radius: 50%;
+margin-right: 10px;
+transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* State Colors with a slight glow effect */
+.light-red {
+background-color: #ff4d4d;
+box-shadow: 0 0 8px #ff4d4d;
+}
+.light-green {
+background-color: #4caf50;
+box-shadow: 0 0 8px #4caf50;
+}
+
+.result-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.expand-arrow {
+  font-size: 11px;
+  color: #888;
+  margin-left: 6px;
+}
+
+.detail-row td {
+  padding: 0;
+  background: #f9f9f9;
+}
+
+.detail-box {
+  margin: 4px 8px 8px 32px;
+  padding: 10px 14px;
+  border-left: 3px solid #ccc;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  line-height: 1.8;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-line {
+  display: flex;
+  gap: 12px;
+}
+
+.detail-label {
+  font-weight: 600;
+  min-width: 90px;
+  color: #555;
+}
+
+.truncate {
+    max-width: 250px;       /* Adjust this value based on your screen width */
+    white-space: nowrap;    /* Prevents the text from wrapping to a second line */
+    overflow: hidden;       /* Hides the text that goes beyond the max-width */
+    text-overflow: ellipsis;/* Adds the "..." at the end */
+    display: inline-block;  /* Required for max-width to work inside a table cell */
+    vertical-align: middle;
+}
+
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    background: #222;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: Montserrat;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.3s ease forwards;
+}
+
+
+
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-box {
+    background: #ffffff;
+    padding: 28px 32px;
+    border-radius: 8px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    font-family: Montserrat;
+    color: #222;
+}
+
+.modal-box h3 {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+}
+
+.modal-box p {
+    font-size: 0.85rem;
+    color: #555;
+    margin: 0 0 20px 0;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-buttons button {
+    margin: 0;
+    padding: 6px 18
+}
+
+html {
+    overflow-y: scroll;
+}

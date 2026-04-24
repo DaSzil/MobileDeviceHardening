@@ -1,0 +1,536 @@
+{
+  "android": [
+    {
+      "id": "1.1",
+      "title": "Up to Date Firmware",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "getprop",
+      "key": "ro.build.version.security_patch",
+      "desired": "2026-02-05",
+      "description": "Firmware updates include critical security fixes. Verify the patch level is current.",
+      "rationale": "Reduces the probability of an attacker remotely exploiting the device."
+    },
+    {
+      "id": "1.2",
+      "title": "Enabled Lock Screen",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "secure",
+      "key": "lockscreen.password_type",
+      "desired": "PIN/Pattern/Password",
+      "description": "Verify that a Pattern, PIN or Password has been set. Swipe (type 17) and None (type 0) are non-compliant.",
+      "rationale": "Enabling Screen Lock requires user authentication, which improves device security."
+    },
+    {
+      "id": "1.3",
+      "title": "\"Make Pattern Visible\" is Disabled",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": "0",
+      "description": "Disable pattern visibility if using a pattern as device lock mechanism. Verify manually in Settings > Lock Screen.",
+      "rationale": "Keeping unlock patterns visible can reveal the pattern and is vulnerable to shoulder surfing attacks."
+    },
+    {
+      "id": "1.4",
+      "title": "\"Automatically Lock\" is set to \"Immediately\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace" : "secure",
+      "key": "lock_screen_lock_after_timeout",
+      "desired": "0",
+      "description": "Immediately lock the phone as soon as the device goes to sleep.The recommended state for this setting is: Immediately.",
+      "rationale": "Automatically and immediately locking the device as soon as it goes to sleep ensures there is no delay between the device entering the sleep state and the device being locked."
+    },
+    {
+      "id": "1.5",
+      "title": "\"Power Button Instantly Locks\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": "0",
+      "description": "Pressing the power button should lock the device instantly.",
+      "rationale": "Enabling Power button instantly locks setting ensures that the device is instantly locked as well. This avoids a possible situation where a device is asleep but not locked and would be vulnerable to unauthorized use."
+    },
+    {
+      "id": "1.6",
+      "title": "\"Lock Screen Message\" is Configured",
+      "level": "1",
+      "type": "Manual",
+      "namespace":null,
+      "key": null,
+      "desired": "0",
+      "description": "Set a message to be displayed on the locked screen. The recommended state for this setting is: Configure Lock Screen Message.",
+      "rationale": "When device screen is locked, a lock screen message helps to provide: Deterrent warnings; Device recognition without needing to unlock the device; Emergency contact information."
+    },
+    {
+      "id": "1.7",
+      "title": "Do Not Connect to Untrusted Wi-Fi Networks",
+      "level": "2",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": "0",
+      "description": "The Do not connect to untrusted Wi-Fi networks setting protects users from potential security threats when connecting to Wi-Fi networks. When this setting is enabled, the device will automatically avoid connecting to any Wi-Fi networks that it deems untrusted, based on a set of predefined criteria.",
+      "rationale": "Connecting a device to an open untrusted network through unsecured channels can increase the remote attack surface of the device. The cellular data network is a more difficult medium to inspect compared to Wi-Fi. If a user is going to be using public Wi-Fi, using a secure VPN is recommended. In most cases, you should avoid using a public, untrusted or free Wi-Fi."
+    },
+    {
+      "id": "1.8",
+      "title": "Ensure \"Show Password\" is set to \"Disabled\"",
+      "level": "2",
+      "type": "Manual",
+      "namespace": "system",
+      "key": "show_password",
+      "desired": "0",
+      "description": "This setting controls whether passwords typed into a user's Android device are visible on screen or hidden. When this setting is disabled, the password is concealed, and only the most recent character is visible for a short time after it has been pressed.",
+      "rationale": "Disabling this setting prevents potential shoulder surfing attacks."
+    },
+    {
+      "id": "1.9",
+      "title": "Ensure \"Developer Options\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "global",
+      "key": "development_settings_enabled",
+      "desired": "0",
+      "description": "The Developer Options is a hidden settings menu on Android devices that provides advanced tools and options for developers and advanced users.",
+      "rationale": "Enabling Developer Options allows a user to alter specific, very advanced settings on the device. This can severely affect how the device functions and expose additional developmental features to the user. This also exposes the device to respond to features such as USB debugging (when enabled) and other features that could be exploited to gain malicious access to the device sub-systems."
+    },
+    {
+      "id": "1.10",
+      "title": "Ensure \"Install Unknown Apps\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "secure",
+      "key": null,
+      "desired": "0",
+      "description": "Check Settings > Apps > Special Access > Install Unknown Apps and ensure no apps have this permission enabled.",
+      "rationale": "Disabling installation from untrusted distribution channels protects against the inadvertent installation of untrusted or malicious applications. Google Play Apps are vetted by the Google Security Team and are generally considered safe. Installing apps from other sources can increase the risk of downloading malware or apps that may compromise user privacy and security. Therefore, it is recommended that users avoid installing apps from untrusted distribution channels."
+    },
+    {
+      "id": "1.11",
+      "title": "Do not \"Root\" a User Device",
+      "level": "1",
+      "type": "Heuristic",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Rooting an Android device means gaining administrative access to the device's system files and settings. This allows users to install custom firmware, modify system files, and perform other advanced operations that are not possible with a standard, unrooted device.",
+      "rationale": "Rooting an Android device breaks the user-level restrictions set by Google. In addition, rooting enables any form of alteration to the device, which could allow privileged actions. As a result, rooting puts the device at greater risk because rooting can modify the device without restrictions. Rooting also voids the warranty and could make installing future security updates is problematic."
+    },
+    {
+      "id": "1.12",
+      "title": "\"Extend Unlock\" is set to \"Disabled\"",
+      "level": "2",
+      "type": "Manual",
+      "logic": "OR",
+      "description": "Find My Device allows users to remotely locate, lock, or erase their device in case it is lost or stolen.",
+      "rationale": "By enabling Find My Device, a user can remotely locate the device, ring the device, lock, or erase the device data. This helps to protect any sensitive data or personal information that may be stored on the device. It also increases the chances of recovering the device or having it returned to the owner, as it can provide location information to law enforcement or other authorities.",
+      "checks": [
+        {
+          "namespace": "secure",
+          "key": "trusted_locations_count",
+          "desired": "0"
+        },
+        {
+          "namespace": "secure",
+          "key": "trust_agents_initialized",
+          "desired": "0"
+        }
+      ]
+    },
+    {
+      "id": "1.13",
+      "title": "Ensure \"Find My Device\" is set to \"Enabled\"",
+      "level": "2",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Find My Device allows users to remotely locate, lock, or erase their device in case it is lost or stolen. The recommended state for this setting is: Enabled.",
+      "rationale": "Knowing that this feature is locked behind an app, namely the \"Find Hub\", released by Google, we cannot properly identify if this setting is enabled by the user, as it needs to read values from inside another app."
+    },
+    {
+      "id": "1.14a",
+      "title": "Ensure \"Use network-provided time\" is set to \"Enabled\" ",
+      "type": "Manual",
+      "namespace": "global",
+      "key": "auto_time",
+      "desired": "1",
+      "description": "See \"1.14\".",
+      "rationale": "See \"1.14\"."
+    },
+    {
+      "id": "1.14b",
+      "title": "Ensure\"Use network-provided time zone\" is set to \"Enabled\" ",
+      "type": "Manual",
+      "namespace": "global",
+      "key": "auto_time_zone",
+      "desired": "1",
+      "description": "See \"1.14\".",
+      "rationale": "See \"1.14\"."
+    },
+    {
+      "id": "1.15",
+      "title": "Ensure \"Remotely locate this device\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "system",
+      "key": "remote_control",
+      "desired": "1",
+      "description": "The \"Remotely locate this device\" setting allows users to locate their lost or stolen device remotely, as long as it is connected to the internet. By enabling this feature, users can easily track the location of their device on a map, lock it remotely with a custom message and phone number, and even erase all data on the device to protect sensitive information.",
+      "rationale": "By enabling the Remotely locate this device setting users can quickly and easily locate their lost or stolen device, and take action to protect their data and privacy."
+    },
+    {
+      "id": "1.16",
+      "title": "Ensure \"Allow remote lock and erase\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "system",
+      "key": "remote_control",
+      "desired": "1",
+      "description": "The allow remote lock and erase setting allows users to remotely lock their device with a new passcode or erase all data in the event of loss or theft.",
+      "rationale": " Allow remote lock and erase setting helps a user to remotely lock a device or erase data through Find My Device. This helps to safeguard privacy and protect data from unsanctioned access."
+    },
+    {
+      "id": "1.17",
+      "title": "Ensure 'App protection' is set to 'Enabled'",
+      "level": "1",
+      "type": "Manual",
+      "logic": "AND",
+      "checks": [
+        {
+          "namespace": "secure",
+          "key": "appprotection_permission_function_agree_or_disagree",
+          "desired": "true"
+        },
+        {
+          "namespace": "secure",
+          "key": "appprotection_permission_function_usage",
+          "desired": "true"
+        }
+      ],
+      "description": "Samsung's built-in malware scanner provided by Device Care.",
+      "rationale": "App Protection provides local, on-device signature scanning to detect malicious applications that may have bypassed the initial Play Store checks."
+    },
+    {
+      "id": "1.18",
+      "title": "Ensure \"Improve harmful app detection\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired" : null,
+      "description": "The \"Improve harmful app detection\" setting enables Google to scan apps on the device in real-time, analyze their behavior, and compare them against a database of known malicious apps.",
+      "rationale": "Enabling \"Improve harmful app detection\" setting sends anonymous information to Google about non-Google Play apps to enhance the detection and prevention of harmful apps, ultimately enhancing the security of Android devices and benefiting all users."
+    },
+    {
+      "id": "1.19",
+      "title": "Ensure \"Ask for unlock pattern/PIN/password before unpinning' is set to 'Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "system",
+      "key": "lock_to_app_enabled",
+      "desired" : "1",
+      "description": "A user can pin an app and hand the device to a friend. With the screen pinned, the friend can use only that app. To use the other apps again, the user can unpin the screen.",
+      "rationale": "A user might lend their device to a friend or anyone else to carry out a single task, such as playing a game. Screen pinning, in such a situation, locks the user to a particular screen, preventing accidental or malicious unpinning and preserving the confidentiality of the device's data. Users cannot use the device outside of the pinned application until the screen is unpinned. Unpinning the screen should require user re-authentication."
+    },
+    {
+      "id": "1.20",
+      "title": "Ensure \"Screen Timeout\" is set to \"2 minutes\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "system",
+      "key": "screen_off_timeout",
+      "desired": "120000",
+      "description": "The Screen timeout setting allows users to specify the amount of time that elapses before the device's screen automatically turns off.",
+      "rationale": "Setting an inactivity timeout is a recommended security measure to prevent unauthorized access to the device when it's unattended. The inactivity timeout automatically turns off the screen after a specified period of inactivity and also activates other security features like a screen lock to safeguard the device. This helps protect sensitive information from unauthorized access and enhances the overall security of the device."
+    },
+    {
+      "id": "1.21",
+      "title": "Ensure \"Wi-Fi assistant\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namesapce": "system",
+      "key": null,
+      "desired": null,
+      "description": "The Wi-Fi assistant setting allows users to automatically connect to high-quality open Wi-Fi networks.",
+      "rationale": "Wi-Fi assistant connects to any open Wi-Fi and tunnels the connection through Google VPN servers. It is considered best practice to only connect to trusted networks manually and leave this setting disabled."
+    },
+    {
+      "id": "1.22",
+      "title": "Keep device Apps up to date",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Regularly update device apps. The recommended state for this setting is: Update apps",
+      "rationale": "Enabling Keep device Apps up to date ensures that apps are always up to date with the latest features and security fixes without the need for manual updates."
+    },
+    {
+      "id": "1.23",
+      "title": "Ensure \"Add users from lock screen\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "The Add users from lock screen setting allows users to add new users to the device from the lock screen without having to enter the primary user's password.",
+      "rationale": "Users and the guest profile can do most of the same things as the device's owner, but each profile has its own storage space. As a result, guests could install malicious apps nor carry out other activities that compromise overall device security. Therefore, addin nusers from the lock screen setting should be disabled."
+    },
+    {
+      "id": "1.24",
+      "title": "Ensure \"Guest profiles\" do not exist",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Do not add any guest profiles on the device. Guest profiles allows users to create temporary profiles for guests or other individuals who may need to use the device without accessing the owner's personal data.",
+      "rationale": "Users and the guest profile can do most of the same things as the device’s owner, but each profile has its own storage space. As a result, guests could install malicious apps or carry out other activities that compromise overall device security. Therefore, adding any guest profiles on the device is not recommended."
+    },
+    {
+      "id": "1.25",
+      "title": "Review app permissions periodically",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Review device app's permissions periodically. App permissions allow control over which capabilities or information apps could access on the device. Permissions can extend from using device hardware to accessing data.",
+      "rationale": "Periodically reviewing all apps permissions ensures that those apps have legitimate permissions and only have access to data they actually need. Uninstall apps that may seek overbroad permissions."
+    },
+    {
+      "id": "1.26",
+      "title": "Ensure 'Bluetooth' Pairing is Configured",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "global",
+      "key": "bluetooth_on",
+      "desired": "0",
+      "description": "Bluetooth provides wireless connections to a wide range of devices like handsfree headsets, internet sharing and data transfer.",
+      "rationale": "Some Bluetooth profiles provide for transfer of data without encryption or may be in violation of organization security policies and therefore should be disabled."
+    },
+    {
+      "id": "1.27",
+      "title": "Ensure that no 3rd party keyboard are installed.",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "secure",
+      "key": "enabled_input_methods",
+      "desired": "com.google.android.googlequicksearchbox/com.google.android.voicesearch.ime.VoiceInputMethodService:com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME",
+      "description": "A number of 3rd party custom keyboards are available for Android devices.",
+      "rationale": "Many 3rd party keyboards have been known to contain malware and provide an easy method to capture keystrokes."
+    },
+    {
+      "id": "1.28",
+      "title": "Review existing user profiles periodically",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Review any user profiles on the device. Remove those that are no longer required.",
+      "rationale": "Users and the guest profile can do most of the same things as the device's owner, but each profile has its own storage space. As a result, additional users could install malicious apps or carry out other activities that compromise overall device security. Therefore, reviewing and removing unnecessary user profiles should be done periodically."
+    },
+    {
+      "id": "2.1",
+      "title": "Ensure \"Lock Screen\" is set to \"Don't Show Notifications at All\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "secure",
+      "key": "lock_screen_show_notifications",
+      "desired": "0",
+      "description": "Disable notifications on the lock screen. The recommended state for this setting is: Don't show notifications at all.",
+      "rationale": "If the device is lost or unattended, disabling notifications prevents the information from appearing on the lock screen. This information might be confidential, and thus unwarranted disclosures could be avoided."
+    },
+    {
+      "id": "2.2",
+      "title": "Ensure \"Back up to Google Drive\" is \"Disabled\"",
+      "level": "2",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Disable Backup to Google Drive.",
+      "rationale": "If a user can back up corporate device data to a personal Google account, the user can later restore the information to a new device. Because of privacy concerns, backing up personal data such as text messages, emails, photos, and contacts to any third party is not recommended."
+    },
+    {
+      "id": "2.3",
+      "title": "Ensure \"Web and App Activity\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Disable linking of web and app activity to your account when you are logged out",
+      "rationale": "When this setting is enabled, searches and activity from other Google services are linked and saved to the Google Account. This could be privacy-invasive, so it is recommended to disable this setting."
+    },
+    {
+      "id": "2.4",
+      "title": "Ensure \"Device Information\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace":  null,
+      "key": null,
+      "desired": null,
+      "description": "Disable storing device information to your account.",
+      "rationale": "When the Device Information setting is enabled, contact lists, calendars, alarms, and applications are saved to provide a personalized experience. The Device Information setting saves this data and replicates the information on Google’s servers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+    },
+    {
+      "id": "2.5",
+      "title": "Ensure \"Voice & Audio Activity\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Disable saving your voice and other audio to your Google Account.",
+      "rationale": "Google records your voice and other audio when you use audio activations. Audio can be saved even when your device is offline. When Voice & Audio Activity is off, voice inputs won't be saved to your Google Account, even if you're signed in. Instead, they may only be saved using anonymous identifiers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+    },
+    {
+      "id": "2.6",
+      "title": "Ensure \"YouTube Search History\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": null,
+      "key": null,
+      "desired": null,
+      "description": "Disable storing YouTube Search History to a user's account.",
+      "rationale": "Turning on the YouTube Search History setting stores all YouTube searches to the user’s Google account. YouTube and Google search history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+    },
+    {
+      "id": "2.7",
+      "title": "Ensure \"YouTube Watch History\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Disable storing YouTube Watch History to a user account.",
+      "rationale": "Turning on the YouTube Watch History setting stores all YouTube watch history to the user’s Google account. YouTube and Google watch history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+    },
+    {
+      "id": "2.8",
+      "title": "Ensure \"Google Location History\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Disable storing device location history.",
+      "rationale": "When the Google Location History setting is enabled, the device periodically sends diagnostic information to Google. This setting stores location history to provide results and recommendations across Google products. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+    },
+    {
+      "id": "2.9",
+      "title": "Ensure \"Opt out of Ads Personalization\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "The Opt out of Ads Personalization setting allows users to control how their data is used for personalized advertising.",
+      "rationale": "Apps leverage the app/browsing data to build a profile for displaying personalized ads. Disabling this setting prevents building profiles from various app/browsing activities to protect privacy."
+    },
+    {
+      "id": "2.10",
+      "title": "Ensure \"Wi-Fi scanning\" Is \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Wi-Fi scanning is a feature that allows your device to continuously scan for nearby Wi-Fi networks even when Wi-Fi is turned off. While it's used to improve location accuracy for services like Google Maps and Find My Phone, it also presents some security and\nprivacy risks.",
+      "rationale": "Wi-Fi scanning can make you vulnerable to attacks, especially when your device is configured to automatically connect to known networks. Threat actors can set up an \"evil twin\" network — a fake Wi-Fi access point with a common name like \"Free Public Wi-Fi.\" Your phone might automatically connect to this malicious network, allowing the attacker to intercept your data and/or distribute malware."
+    },
+    {
+      "id": "2.11",
+      "title": "Ensure \"Bluetooth scanning\" Is \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Bluetooth scanning allows the device to find nearby Bluetooth devices and services, even when Bluetooth is turned off. This feature, part of location services, is mainly for improving location accuracy but carries significant security and privacy risks.",
+      "rationale": "Bluetooth scanning can be used to track your location. By continuously collecting the MAC addresses of nearby Bluetooth devices, this data can be used to create a detailed record of your movements. Malicious actors could potentially use this information to monitor your routine and habits. Although newer Android versions use randomized MAC addresses to mitigate some of this risk, it is still a concern."
+    },
+    {
+      "id": "3.1",
+      "title": "Ensure \"Microphone\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "This setting controls if a site asks before accessing the microphone.",
+      "rationale": "Websites will have to ask permission before being allowed to access the microphone, which will help prevent unwanted access to the microphone and help protect against potential privacy concerns."
+    },
+    {
+      "id": "3.2",
+      "title": "Ensure \"Location\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "secure",
+      "key": "location_mode",
+      "desired": "3",
+      "description": "This setting controls if a site asks before accessing the location,",
+      "rationale": "Websites will have to ask permission before being allowed to access the location, which will help prevent unwanted access to the user's location and help protect against potential privacy concerns."
+    },
+    {
+      "id": "3.3",
+      "title": "Ensure \"Allow third-party cookies\" is set to \"Disabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "A third-party cookie is sent by a domain that differs from the domain in the browser's address bar.",
+      "rationale": "Blocking third-party cookies can help protect users' privacy by eliminating several website tracking cookies."
+    },
+    {
+      "id": "3.4",
+      "title": "Ensure \"Safe Browsing\" is set to \"Enabled\"",
+      "level": "1",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "This setting controls the \"Safe Browsing\" feature.",
+      "rationale": "Google Safe Browsing helps protect devices by warning users when they attempt to\nnavigate dangerous sites or download harmful files."
+    },
+    {
+      "id": "3.5",
+      "title": "Ensure \"Search and URL suggestions\" is set to \"Disabled\"",
+      "level": "2",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "Google Chrome uses a prediction service to show related searches, matches from browsing history, and popular websites while a user types in the address bar.",
+      "rationale": "Having search suggestions processed is considered a privacy concern."
+    },
+    {
+      "id": "3.6",
+      "title": "Ensure \"Do Not Track\" is set to \"Enabled\"",
+      "level": "2",
+      "type": "Manual",
+      "namespace": "",
+      "key": "",
+      "desired": "",
+      "description": "When browsing the web on computers or Android devices, users can request websites not to collect or track browsing data. Note: Chrome doesn't provide details of which websites and web services respect \"Do Not Track\" requests and how websites interpret them.",
+      "rationale": "Many websites will still collect and use browsing data to improve security, provide content, services, ads, and recommendations on their websites, and generate reporting statistics."
+    }
+  ],
+
+  "ios": [
+    {
+      "id": "CIS-1.1",
+      "key": "minLength",
+      "value": 8
+    }
+  ]
+}

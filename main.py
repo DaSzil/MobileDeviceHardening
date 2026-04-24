@@ -58,7 +58,7 @@ def get_device_info():
 # Utilizand comanda "adb devices" vom avea o lista cu dispozitive care sunt conectate catre serverul adb rulat.
 # Returnam True daca exista vreun dispozitiv in lista ADB, iar False daca nu este gasit vreun dispozitiv sau avem
 # vreo alta eroare.
-'''def check_device_connected():
+def check_device_connected():
     try:
         result = subprocess.run(["adb", "devices"],
                                 capture_output=True,
@@ -74,33 +74,6 @@ def get_device_info():
         return len(lines) > 0
     except Exception:
         return False
-'''
-
-# TESTARE
-def check_device_connected():
-    # Check pt Android
-    try:
-        result = subprocess.run(["adb", "devices"], capture_output=True, text=True, timeout=5)
-        lines = []
-        for l in result.stdout.splitlines():
-            if l.strip() and "List of devices" not in l:
-                lines.append(l.strip())
-        if len(lines) > 0:
-            return True
-    except Exception:
-        pass
-
-    # Check pt iOS
-    try:
-        result = subprocess.run(["ideviceinfo", "-k", "ProductType"],
-                                capture_output=True, text=True, timeout=5)
-        if result.returncode == 0 and result.stdout.strip():
-            return True
-    except Exception:
-        pass
-
-    return False
-
 
 def detect_platform():
     # Debug: Check if the file actually exists

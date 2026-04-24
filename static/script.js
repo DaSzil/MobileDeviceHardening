@@ -95,11 +95,21 @@ function pollStatus() {
 
 function renderDevice(d) {
     if (!d) return;
+
     document.getElementById('d-manufacturer').textContent = d.manufacturer || '—';
-    document.getElementById('d-model').textContent = d.model || '—';
-    document.getElementById('d-android').textContent = d.android || '—';
-    document.getElementById('d-patch').textContent = d.patch || '—';
-    document.getElementById('d-serial').textContent = d.serial || '—';
+    document.getElementById('d-model').textContent        = d.model        || '—';
+    document.getElementById('d-android').textContent      = d.android      || '—';
+    document.getElementById('d-patch').textContent        = d.patch        || '—';
+    document.getElementById('d-serial').textContent       = d.serial       || '—';
+    document.getElementById('d-platform').textContent     = d.platform     || '—';
+
+    // Change "Android Version" label dynamically based on platform
+    document.getElementById('label-os').textContent =
+        d.platform === 'iOS' ? 'iOS Version' : 'Android Version';
+
+    // Hide security patch for iOS since it's N/A
+    document.getElementById('patch-field').style.display =
+        d.platform === 'iOS' ? 'none' : 'block';
 }
 
 function renderScore(score) {

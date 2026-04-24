@@ -13,6 +13,29 @@ class HardeningProcess:
         self.policy = policy
         self.handler = AndroidHandler()
 
+    def audit_ios(self):
+        print("\n[*] Commencing iOS Security Audit...")
+        results = []
+        ios_rules = self.policy.get('ios', [])
+
+        for rule in ios_rules:
+            # Placeholder — iOS audit not yet implemented
+            results.append({
+                "id": rule.get('id', '?'),
+                "title": rule.get('title', ''),
+                "status": "MANUAL",
+                "found": "iOS audit not yet implemented.",
+                "description": rule.get('description', ''),
+                "rationale": rule.get('rationale', ''),
+                "desired": rule.get('desired', ''),
+                "fixable": False
+            })
+
+        return results
+
+
+
+
     def audit_android(self):
 
         # Verifica iteratie cu iteratie toate regulile prezente pe ramura "Android" din fisierul mentionat,

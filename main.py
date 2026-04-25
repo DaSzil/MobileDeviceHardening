@@ -2,8 +2,10 @@ from flask import Flask, jsonify, render_template, request
 import subprocess
 import json
 import threading
+import time
 
 IDEVICEINFO_PATH = r"C:\Users\somog\Desktop\Faculta\AN IV\Sem II\Licenta\libimobiledevice\ideviceinfo.exe"
+IDEVICEPAIR_PATH = r"C:\Users\somog\Desktop\Faculta\AN IV\Sem II\Licenta\libimobiledevice\idevicepair.exe"
 
 from core.android_handler import AndroidHandler
 from core.process import HardeningProcess
@@ -42,14 +44,75 @@ def detect_platform():
     # Verificam iOS prin libimobiledevice
     try:
         result = subprocess.run(
-            [IDEVICEINFO_PATH, "-k", "ProductType"],
-                  capture_output=True, text=True, timeout=5)
+        [IDEVICEINFO_PATH, "-k", "ProductType"],
+              capture_output=True,
+              text=True,
+              timeout=5,
+              encoding='utf-8',
+              errors='replace'
+        )
         if result.returncode == 0 and result.stdout.strip():
             return "ios"
     except Exception:
         pass
 
     return None
+
+def pair_ios_device():
+    """
+    Incearca sa conecteze dispozitivul iOS conectat.
+
+      1. Prima incercare: esueaza daca dispozitivul nu a acceptat inca increderea
+      2. Daca se detecteaza dialogul de incredere: se asteapta ca utilizatorul sa accepte pe telefon
+      3. Se reincearca la fiecare 3 secunde, timp de maxim 30 de secunde
+      4. A doua incercare: ar trebui sa reuseasca dupa acceptarea increderii
+
+    Returneaza True daca asocierea a reusit, False altfel.
+    """
+    def attempt_pair():
+        result = subprocess.run(
+            [IDEVICEPAIR_PATH, "pair"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding='utf-8',
+            errors='replace'
+        )
+        return result.returncode == 0, result.stdout + result.stderr
+
+    # Prima incercare
+    success, output = attempt_pair()
+
+    if success:
+        print("[iOS] Paired successfully.")
+        return True
+
+    # Dialogul de incredere nu a fost acceptat inca
+    if "trust dialog" in output.lower() or "accept" in output.lower():
+        print("[iOS] Trust dialog detected. Waiting for user to accept on device...")
+
+        # Anuntam frontend-ul sa afiseze un mesaj utilizatorului
+        with audit_lock:
+            audit_state["status"] = "awaiting_trust"
+
+        # Asteptam maxim 30 de secunde, verificand la fiecare 3 secunde
+        for attempt in range(10):
+            time.sleep(3)
+            print(f"[iOS] Retry attempt {attempt + 1}/10...")
+            success, output = attempt_pair()
+            if success:
+                print("[iOS] Paired successfully after trust.")
+                return True
+
+        print("[iOS] Pairing timed out.")
+        return False
+
+    print(f"[iOS] Pairing failed: {output.strip()}")
+    return False
+
+
+
+
 
 
 def check_device_connected():
@@ -68,7 +131,9 @@ def get_device_info(platform):
             try:
                 result = subprocess.run(
                     ["adb", "shell", "getprop", key],
-                    capture_output=True, text=True, timeout=5
+                    capture_output=True,
+                    text=True,
+                    timeout=5
                 )
                 return result.stdout.strip() or "Unknown"
             except Exception:
@@ -101,8 +166,8 @@ def get_device_info(platform):
         return {
             "platform": "iOS",
             "manufacturer": "Apple",
-            "model": iprop("HardwareModel"),  # D37AP — the hardware identifier
-            "android": iprop("ProductVersion"),  # 18.4
+            "model": iprop("HardwareModel"),
+            "android": iprop("ProductVersion"),
             "patch": "N/A",
             "serial": iprop("SerialNumber"),
         }

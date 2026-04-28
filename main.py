@@ -3,9 +3,15 @@ import subprocess
 import json
 import threading
 import time
+import os
 
-IDEVICEINFO_PATH = r"C:\Users\somog\Desktop\Faculta\AN IV\Sem II\Licenta\libimobiledevice\ideviceinfo.exe"
-IDEVICEPAIR_PATH = r"C:\Users\somog\Desktop\Faculta\AN IV\Sem II\Licenta\libimobiledevice\idevicepair.exe"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+EXE_FOLDER = os.path.join(BASE_DIR, "executables")
+
+IDEVICEINFO_PATH = os.path.join(EXE_FOLDER, "ideviceinfo.exe")
+IDEVICEPAIR_PATH   = os.path.join(EXE_FOLDER, "idevicepair.exe")
+
 
 from core.android_handler import AndroidHandler
 from core.process import HardeningProcess
@@ -157,7 +163,9 @@ def get_device_info(platform):
                     text=True,
                     timeout=5,
                     encoding='utf-8',
-                    errors='replace'
+                    errors='replace',
+                    cwd = EXE_FOLDER,
+                    shell = True
                 )
                 return result.stdout.strip() or "Unknown"
             except Exception:

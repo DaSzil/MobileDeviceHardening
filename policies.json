@@ -527,10 +527,20 @@
   ],
 
   "ios": [
+      {
+        "id": "2.1.1",
+        "title": "Ensure a Consent Message has been Configured",
+        "level": "1",
+        "type": "Manual",
+        "namespace": null,
+        "key": null,
+        "desired": null,
+        "profile_key": "com.apple.mdm.ConsentMessage",
+        "description": "A consent message should be configured and displayed upon enrollment.",
+        "rationale": "A consent message informs the user that the device is managed and sets expectations about privacy."
+    },
     {
-      "id": "CIS-1.1",
-      "key": "minLength",
-      "value": 8
+      
     }
   ]
 }

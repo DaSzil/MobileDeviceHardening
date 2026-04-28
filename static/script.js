@@ -56,6 +56,9 @@ function toggleAll(masterCheckbox) {
 function runAudit() {
     document.getElementById('run-btn').disabled = true;
     document.getElementById('status').textContent = 'Running audit...';
+    document.getElementById('loading-overlay').style.display = 'flex';
+    document.getElementById('loading-text').textContent = 'Loading...';
+
 
     fetch('/api/reset', { method: 'POST' })
         .then(() => fetch('/api/run', { method: 'POST' }))
@@ -65,6 +68,7 @@ function runAudit() {
         .catch(() => {
             document.getElementById('status').textContent = 'Error: could not start audit.';
             document.getElementById('run-btn').disabled = false;
+            document.getElementById('loading-overlay').style.display = 'none';
         });
 }
 
@@ -72,8 +76,14 @@ function pollStatus() {
     fetch('/api/status')
         .then(r => r.json())
         .then(data => {
+            if (data.status === 'awaiting-trust') {
+                document.getElementById('loading-text').textContent =
+                'Accept the Trust dialog on your iPhone, then enter your passcode...';
+                return;
+            }
             if (data.status === 'done') {
                 clearInterval(pollInterval);
+                document.getElementById('loading-overlay').style.display = 'none'
                 document.getElementById('run-btn').disabled = false;
                 document.getElementById('fix-btn').disabled = false;
                 document.getElementById('status').textContent = 'Audit complete.';
@@ -87,6 +97,7 @@ function pollStatus() {
                 document.getElementById('results-section').style.display = 'block';
             } else if (data.status === 'error') {
                 clearInterval(pollInterval);
+                document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('run-btn').disabled = false;
                 document.getElementById('status').textContent = 'Error: Check terminal for details.';
             }

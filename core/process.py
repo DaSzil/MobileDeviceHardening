@@ -28,6 +28,7 @@ class HardeningProcess:
                 "description": rule.get('description', ''),
                 "rationale": rule.get('rationale', ''),
                 "desired": rule.get('desired', ''),
+                "steps": rule.get('steps', []),
                 "fixable": False
             })
 
@@ -172,6 +173,7 @@ class HardeningProcess:
                         "description": rule.get('description', ''),
                         "rationale": rule.get('rationale', ''),
                         "desired": rule.get('desired', ''),
+                        "steps": rule.get('steps', []),
                         "fixable": (str(rule['id']) in self.handler.supported)
                     })
                     # Neavand vreo variabila de testat, vom putea sari la final, neputand da o nota de PASS sau FAIL
@@ -208,6 +210,7 @@ class HardeningProcess:
                                 "description": rule.get('description', ''),
                                 "rationale": rule.get('rationale', ''),
                                 "desired": rule.get('desired', ''),
+                                "steps": rule.get('steps', []),
                                 "fixable": (str(rule['id']) in self.handler.supported)
                             })
 
@@ -223,7 +226,9 @@ class HardeningProcess:
                         results.append({"id": rule['id'],
                                         "title": rule.get('title', ''),
                                         "status": status,
-                                        "found": current})
+                                        "found": current,
+                                        "steps": rule.get('steps', []),
+                                        })
                         continue
 
 
@@ -244,6 +249,7 @@ class HardeningProcess:
                 "description": rule.get('description', ''),
                 "rationale": rule.get('rationale', ''),
                 "desired": rule.get('desired', ''),
+                "steps": rule.get('steps', []),
                 "fixable": (str(rule['id']) in self.handler.supported)
             })
         return results

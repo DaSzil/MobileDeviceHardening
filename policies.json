@@ -29,6 +29,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Settings\" Gear Icon.",
+        "Tap \"Security\".",
+        "If \"Screen lock\" has \"Pattern\" underneath the text, follow further steps. If not,\nthen this recommendation is not applicable.",
+        "Tap the \"Gear Icon\" next to \"Screen lock\".",
+        "Toggle \"Make pattern visible\" to \"OFF\" position."
+      ],
       "desired": "0",
       "description": "Disable pattern visibility if using a pattern as device lock mechanism. Verify manually in Settings > Lock Screen.",
       "rationale": "Keeping unlock patterns visible can reveal the pattern and is vulnerable to shoulder surfing attacks."
@@ -51,6 +58,12 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Security\".",
+        "Tap the Gear icon next to \"Screen lock\".",
+        "Toggle \"Power button instantly locks\" setting to \"ON\" position."
+      ],
       "desired": "0",
       "description": "Pressing the power button should lock the device instantly.",
       "rationale": "Enabling Power button instantly locks setting ensures that the device is instantly locked as well. This avoids a possible situation where a device is asleep but not locked and would be vulnerable to unauthorized use."
@@ -62,6 +75,14 @@
       "type": "Manual",
       "namespace":null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Display\".",
+        "Tap \"Advanced\".",
+        "Tap \"Lock screen display.\".",
+        "Tap \"Lock screen message.\".",
+        "Write your message and tap \"Save\"."
+      ],
       "desired": "0",
       "description": "Set a message to be displayed on the locked screen. The recommended state for this setting is: Configure Lock Screen Message.",
       "rationale": "When device screen is locked, a lock screen message helps to provide: Deterrent warnings; Device recognition without needing to unlock the device; Emergency contact information."
@@ -73,6 +94,11 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\".",
+        "Tap \"Network & Internet\".",
+        "Toggle \"Wi-Fi\" setting to the Off position or connect to a trusted network."
+      ],
       "desired": "0",
       "description": "The Do not connect to untrusted Wi-Fi networks setting protects users from potential security threats when connecting to Wi-Fi networks. When this setting is enabled, the device will automatically avoid connecting to any Wi-Fi networks that it deems untrusted, based on a set of predefined criteria.",
       "rationale": "Connecting a device to an open untrusted network through unsecured channels can increase the remote attack surface of the device. The cellular data network is a more difficult medium to inspect compared to Wi-Fi. If a user is going to be using public Wi-Fi, using a secure VPN is recommended. In most cases, you should avoid using a public, untrusted or free Wi-Fi."
@@ -106,6 +132,15 @@
       "type": "Manual",
       "namespace": "secure",
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Apps & Notifications.\".",
+        "Tap \"Advanced\".",
+        "Tap \"Special app access\".",
+        "Tap \"Install unknown apps.\".",
+        "Tap any app showing \"Allowed\".",
+        "Toggle \"Allow from this source\" to \"OFF\" position."
+      ],
       "desired": "0",
       "description": "Check Settings > Apps > Special Access > Install Unknown Apps and ensure no apps have this permission enabled.",
       "rationale": "Disabling installation from untrusted distribution channels protects against the inadvertent installation of untrusted or malicious applications. Google Play Apps are vetted by the Google Security Team and are generally considered safe. Installing apps from other sources can increase the risk of downloading malware or apps that may compromise user privacy and security. Therefore, it is recommended that users avoid installing apps from untrusted distribution channels."
@@ -127,6 +162,13 @@
       "level": "2",
       "type": "Manual",
       "logic": "OR",
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Security\".",
+        "Tap \"Advanced\".",
+        "Tap \"Trust agents\".",
+        "Toggle \"Smart Lock (Google)\" to \"OFF\" position."
+      ],
       "description": "Find My Device allows users to remotely locate, lock, or erase their device in case it is lost or stolen.",
       "rationale": "By enabling Find My Device, a user can remotely locate the device, ring the device, lock, or erase the device data. This helps to protect any sensitive data or personal information that may be stored on the device. It also increases the chances of recovering the device or having it returned to the owner, as it can provide location information to law enforcement or other authorities.",
       "checks": [
@@ -149,6 +191,12 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Security\".",
+        "Tap \"Find my Device\".",
+        "Toggle slider to the \"ON\" position."
+      ],
       "desired": null,
       "description": "Find My Device allows users to remotely locate, lock, or erase their device in case it is lost or stolen. The recommended state for this setting is: Enabled.",
       "rationale": "Knowing that this feature is locked behind an app, namely the \"Find Hub\", released by Google, we cannot properly identify if this setting is enabled by the user, as it needs to read values from inside another app."
@@ -223,6 +271,12 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Google\"",
+        "Tap \"Google Play Protect\"",
+        "Toggle \"Improve harmful app detection\" setting to \"ON\" position."
+      ],
       "desired" : null,
       "description": "The \"Improve harmful app detection\" setting enables Google to scan apps on the device in real-time, analyze their behavior, and compare them against a database of known malicious apps.",
       "rationale": "Enabling \"Improve harmful app detection\" setting sends anonymous information to Google about non-Google Play apps to enhance the detection and prevention of harmful apps, ultimately enhancing the security of Android devices and benefiting all users."
@@ -256,6 +310,12 @@
       "type": "Manual",
       "namesapce": "system",
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Google\".",
+        "Tap \"Networking\".",
+        "Toggle \"Wi-Fi assistant\" to \"OFF\" position."
+      ],
       "desired": null,
       "description": "The Wi-Fi assistant setting allows users to automatically connect to high-quality open Wi-Fi networks.",
       "rationale": "Wi-Fi assistant connects to any open Wi-Fi and tunnels the connection through Google VPN servers. It is considered best practice to only connect to trusted networks manually and leave this setting disabled."
@@ -278,6 +338,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap/slide up \"Launcher\".",
+        "Launch \"Play Store\" App in the App drawer.",
+        "Tap \"Menu\".",
+        "Tap \"My apps & Games\".",
+        "If there are any updates pending, then tap \"Update All\"."
+      ],
       "desired": null,
       "description": "The Add users from lock screen setting allows users to add new users to the device from the lock screen without having to enter the primary user's password.",
       "rationale": "Users and the guest profile can do most of the same things as the device's owner, but each profile has its own storage space. As a result, guests could install malicious apps nor carry out other activities that compromise overall device security. Therefore, addin nusers from the lock screen setting should be disabled."
@@ -289,6 +356,14 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open \"Quick Settings\" drawer.",
+        "Tap the \"Profile\" icon.",
+        "Switch to \"Guest profile\".",
+        "Open \"Quick Settings\" drawer.",
+        "Tap \"Remove guest\".",
+        "Confirm removal by tapping \"remove\"."
+      ],
       "desired": null,
       "description": "Do not add any guest profiles on the device. Guest profiles allows users to create temporary profiles for guests or other individuals who may need to use the device without accessing the owner's personal data.",
       "rationale": "Users and the guest profile can do most of the same things as the device’s owner, but each profile has its own storage space. As a result, guests could install malicious apps or carry out other activities that compromise overall device security. Therefore, adding any guest profiles on the device is not recommended."
@@ -300,13 +375,20 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Apps & Notifications\".",
+        "Tap \"App permissions\".",
+        "Tap on each permission and review the apps that have them.",
+        "Disable the app permissions that are over-permissive."
+      ],
       "desired": null,
       "description": "Review device app's permissions periodically. App permissions allow control over which capabilities or information apps could access on the device. Permissions can extend from using device hardware to accessing data.",
       "rationale": "Periodically reviewing all apps permissions ensures that those apps have legitimate permissions and only have access to data they actually need. Uninstall apps that may seek overbroad permissions."
     },
     {
       "id": "1.26",
-      "title": "Ensure 'Bluetooth' Pairing is Configured",
+      "title": "Ensure \"Bluetooth\" Pairing is Configured",
       "level": "1",
       "type": "Manual",
       "namespace": "global",
@@ -333,6 +415,14 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"System\".",
+        "Tap \"Advanced\".",
+        "Tap \"Multiple users\".",
+        "Tap any unnecessary profile.",
+        "Tap \"Delete User\"."
+      ],
       "desired": null,
       "description": "Review any user profiles on the device. Remove those that are no longer required.",
       "rationale": "Users and the guest profile can do most of the same things as the device's owner, but each profile has its own storage space. As a result, additional users could install malicious apps or carry out other activities that compromise overall device security. Therefore, reviewing and removing unnecessary user profiles should be done periodically."
@@ -355,6 +445,15 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"System\".",
+        "Tap \"Advanced\".",
+        "Tap \"Backup\".",
+        "Tap \"Back up to Google Drive\".",
+        "Toggle it to \"OFF\" position.",
+        "Tap \"OK\" on warning popup"
+      ],
       "desired": null,
       "description": "Disable Backup to Google Drive.",
       "rationale": "If a user can back up corporate device data to a personal Google account, the user can later restore the information to a new device. Because of privacy concerns, backing up personal data such as text messages, emails, photos, and contacts to any third party is not recommended."
@@ -366,6 +465,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"Web & App Activity\" setting to \"OFF\" position"
+      ],
       "desired": null,
       "description": "Disable linking of web and app activity to your account when you are logged out",
       "rationale": "When this setting is enabled, searches and activity from other Google services are linked and saved to the Google Account. This could be privacy-invasive, so it is recommended to disable this setting."
@@ -377,6 +483,13 @@
       "type": "Manual",
       "namespace":  null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"Device Information\" setting to \"OFF\" position."
+      ],
       "desired": null,
       "description": "Disable storing device information to your account.",
       "rationale": "When the Device Information setting is enabled, contact lists, calendars, alarms, and applications are saved to provide a personalized experience. The Device Information setting saves this data and replicates the information on Google’s servers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
@@ -388,6 +501,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"Voice & Audio Activity\" setting to \"OFF\" position."
+      ],
       "desired": null,
       "description": "Disable saving your voice and other audio to your Google Account.",
       "rationale": "Google records your voice and other audio when you use audio activations. Audio can be saved even when your device is offline. When Voice & Audio Activity is off, voice inputs won't be saved to your Google Account, even if you're signed in. Instead, they may only be saved using anonymous identifiers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
@@ -399,6 +519,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"YouTube Search History\" setting to \"OFF\" position."
+      ],
       "desired": null,
       "description": "Disable storing YouTube Search History to a user's account.",
       "rationale": "Turning on the YouTube Search History setting stores all YouTube searches to the user’s Google account. YouTube and Google search history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
@@ -410,6 +537,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"YouTube Watch History\" setting to \"OFF\" position."
+      ],
       "desired": null,
       "description": "Disable storing YouTube Watch History to a user account.",
       "rationale": "Turning on the YouTube Watch History setting stores all YouTube watch history to the user’s Google account. YouTube and Google watch history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
@@ -421,6 +555,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Privacy\".",
+        "Tap \"Advanced\".",
+        "Tap \"Activity Controls\".",
+        "Toggle \"Google Location History\" setting to \"OFF\" position."
+      ],
       "desired": null,
       "description": "Disable storing device location history.",
       "rationale": "When the Google Location History setting is enabled, the device periodically sends diagnostic information to Google. This setting stores location history to provide results and recommendations across Google products. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
@@ -432,6 +573,12 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Open phone's \"Settings\" app.",
+        "Tap \"Google\".",
+        "Tap \"Ads\".",
+        "Toggle \"Opt out of Ads Personalization\" setting to \"ON\" position."
+      ],
       "desired": null,
       "description": "The Opt out of Ads Personalization setting allows users to control how their data is used for personalized advertising.",
       "rationale": "Apps leverage the app/browsing data to build a profile for displaying personalized ads. Disabling this setting prevents building profiles from various app/browsing activities to protect privacy."
@@ -465,6 +612,14 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Chrome\" Icon.",
+        "Tap \"Menu\" Icon.",
+        "Tap \"Settings\".",
+        "Tap \"Site settings\".",
+        "Tap \"Microphone\".",
+        "Toggle to the \"ON\" position."
+      ],
       "desired": null,
       "description": "This setting controls if a site asks before accessing the microphone.",
       "rationale": "Websites will have to ask permission before being allowed to access the microphone, which will help prevent unwanted access to the microphone and help protect against potential privacy concerns."
@@ -487,6 +642,14 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Chrome\" Icon.",
+        "Tap \"Menu\" Icon.",
+        "Tap \"Settings\".",
+        "Tap \"Site settings\".",
+        "Tap \"Allow third-party cookies\".",
+        "\"Uncheck\" the \"Allow third-party cookies\" checkbox."
+      ],
       "desired": null,
       "description": "A third-party cookie is sent by a domain that differs from the domain in the browser's address bar.",
       "rationale": "Blocking third-party cookies can help protect users' privacy by eliminating several website tracking cookies."
@@ -498,6 +661,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Chrome\" Icon.",
+        "Tap \"Menu\" Icon.",
+        "Tap \"Settings\".",
+        "Tap \"Privacy\".",
+        "\"Check\" the \"Safe Browsing\" checkbox."
+      ],
       "desired": null,
       "description": "This setting controls the \"Safe Browsing\" feature.",
       "rationale": "Google Safe Browsing helps protect devices by warning users when they attempt to\nnavigate dangerous sites or download harmful files."
@@ -509,6 +679,13 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Chrome\" Icon.",
+        "Tap \"Menu\" Icon.",
+        "Tap \"Settings\".",
+        "Tap \"Privacy\".",
+        "\"Uncheck\" the \"Search and URL suggestions\" checkbox."
+      ],
       "desired": null,
       "description": "Google Chrome uses a prediction service to show related searches, matches from browsing history, and popular websites while a user types in the address bar.",
       "rationale": "Having search suggestions processed is considered a privacy concern."
@@ -520,6 +697,14 @@
       "type": "Manual",
       "namespace": null,
       "key": null,
+      "steps": [
+        "Tap \"Chrome\" Icon.",
+        "Tap \"Menu\" Icon.",
+        "Tap \"Settings\".",
+        "Tap \"Privacy\".",
+        "Tap \"Do Not Track\".",
+        "\"Toggle\" the \"Do Not Track\" to the \"ON\" position."
+      ],
       "desired": null,
       "description": "When browsing the web on computers or Android devices, users can request websites not to collect or track browsing data. Note: Chrome doesn't provide details of which websites and web services respect \"Do Not Track\" requests and how websites interpret them.",
       "rationale": "Many websites will still collect and use browsing data to improve security, provide content, services, ads, and recommendations on their websites, and generate reporting statistics."
@@ -534,13 +719,16 @@
         "type": "Manual",
         "namespace": null,
         "key": null,
+        "steps": [
+          "To be added."
+        ],
         "desired": null,
         "profile_key": "com.apple.mdm.ConsentMessage",
         "description": "A consent message should be configured and displayed upon enrollment.",
         "rationale": "A consent message informs the user that the device is managed and sets expectations about privacy."
     },
     {
-      
+
     }
   ]
 }

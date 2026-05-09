@@ -40,6 +40,47 @@ async function runBulkRemediation() {
   }, 1000);
 }
 
+const tooltip = document.createElement('div');
+tooltip.className = 'tooltip-box';
+tooltip.id = 'global-tooltip';
+document.body.appendChild(tooltip);
+
+function showTooltip(e, steps) {
+    if (!steps || steps.length === 0) return;
+
+    tooltip.innerHTML = `
+        <div class="tooltip-title">How to fix</div>
+        <ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    `;
+    tooltip.style.display = 'block';
+    positionTooltip(e);
+}
+
+function positionTooltip(e) {
+    const padding  = 14;
+    const boxWidth = 280;
+
+    let x = e.clientX + padding;
+    let y = e.clientY + padding;
+
+    // Flip left if tooltip would overflow right edge
+    if (x + boxWidth > window.innerWidth - padding) {
+        x = e.clientX - boxWidth - padding;
+    }
+
+    // Flip up if tooltip would overflow bottom edge
+    const boxHeight = tooltip.offsetHeight;
+    if (y + boxHeight > window.innerHeight - padding) {
+        y = e.clientY - boxHeight - padding;
+    }
+
+    tooltip.style.left = x + 'px';
+    tooltip.style.top  = y + 'px';
+}
+
+function hideTooltip() {
+    tooltip.style.display = 'none';
+}
 
 function toggleAll(masterCheckbox) {
     const checkboxes = document.querySelectorAll('.remediation-checkbox');
@@ -195,6 +236,18 @@ function renderResults(results) {
         tbody.appendChild(tr);
         tbody.appendChild(dr);
         const childCb = tr.querySelector('.remediation-checkbox');
+
+        // Attach tooltip to status cell for MANUAL rows
+        if (r.status === 'MANUAL' && r.steps && r.steps.length > 0) {
+            const statusCell = tr.querySelectorAll('td')[3]; // 4th td = Status column
+            statusCell.style.cursor = 'help';
+            statusCell.style.textDecoration = 'underline dotted';
+
+            statusCell.addEventListener('mouseenter', (e) => showTooltip(e, r.steps));
+            statusCell.addEventListener('mousemove',  (e) => positionTooltip(e));
+            statusCell.addEventListener('mouseleave', hideTooltip);
+        }
+
         if (childCb) {
             childCb.addEventListener('change', (e) => {
                 // 1. Save the state to the data array

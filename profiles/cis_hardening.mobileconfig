@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDescription</key>
+			<string>CIS iOS 26 Passcode rules</string>
+			<key>PayloadDisplayName</key>
+			<string>Passcode Policy</string>
+			<key>PayloadIdentifier</key>
+			<string>com.audit.cis.ios26.passcode</string>
+			<key>PayloadType</key>
+			<string>com.apple.mobiledevice.passwordpolicy</string>
+			<key>PayloadUUID</key>
+			<string>3650613b-3f1f-4646-84f5-1ab54d5f0983</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>forcePIN</key>
+			<true/>
+			<key>maxInactivity</key>
+			<integer>2</integer>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Custom CIS Apple iOS 26 Benchmark profile 1 rule(s) selected.</string>
+	<key>PayloadDisplayName</key>
+	<string>CIS iOS 26 Hardening Profile</string>
+	<key>PayloadIdentifier</key>
+	<string>com.audit.cis.ios26</string>
+	<key>PayloadOrganization</key>
+	<string>Device Hardening Audit</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>3bdc72f6-75f3-446b-a34c-2f9eae968837</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

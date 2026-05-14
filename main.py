@@ -1,11 +1,15 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 import subprocess
 import json
 import threading
 import time
 import os
+import traceback
+from core.profile_gen import generate_cis_profile, get_all_profile_rules
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(BASE_DIR, "profiles")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 EXE_FOLDER = os.path.join(BASE_DIR, "executables")
 
@@ -99,7 +103,7 @@ def pair_ios_device():
 
         # Anuntam frontend-ul sa afiseze un mesaj utilizatorului
         with audit_lock:
-            audit_state["status"] = "awaiting_trust"
+            audit_state["status"] = "awaiting-trust"
 
         # Asteptam maxim 30 de secunde, verificand la fiecare 3 secunde
         for attempt in range(10):
@@ -117,21 +121,11 @@ def pair_ios_device():
     return False
 
 
-
-
-
-
 def check_device_connected():
-    """
-    Returneaza True daca orice dispozitiv (Android sau iOS) este conectat.
-    """
     return detect_platform() is not None
 
 
 def get_device_info(platform):
-    """
-    Preia informatiile dispozitivului conectat in functie de platforma detectata.
-    """
     if platform == "android":
         def prop(key):
             try:
@@ -213,8 +207,15 @@ def run_audit_task():
 
         if platform == "android":
             results = engine.audit_android()
+
         elif platform == "ios":
-            results = engine.audit_ios()  # de implementat
+            paired = pair_ios_device()
+            if not paired:
+                with audit_lock:
+                    audit_state["status"] = "error"
+                return
+            results = engine.audit_ios()
+
 
         # Calcularea scorului
         excluded    = ["MANUAL", "N/A"]
@@ -229,10 +230,16 @@ def run_audit_task():
             audit_state["score"]    = str(score)
             audit_state["platform"] = platform
 
+
     except Exception as e:
+        traceback.print_exc()
         with audit_lock:
-            audit_state["status"]  = "error"
-            audit_state["results"] = [{"id": "ERR", "status": "FAIL", "found": str(e)}]
+            audit_state["status"] = "error"
+            audit_state["results"] = [{
+                                        "id": "ERR",
+                                        "status": "FAIL",
+                                        "found": str(e)
+                                     }]
 
 
 @app.route("/")
@@ -292,6 +299,32 @@ def remediate():
     else:
         return jsonify({"status": "error", "message": f"Rule {rule_id} cannot be auto-remediated."}), 400
 
+@app.route("/api/ios/profile_rules")
+def ios_profile_rules():
+    institutional = request.args.get("institutional", "false").lower() == "true"
+    return jsonify(get_all_profile_rules(institutional= institutional))
+
+
+@app.route("/api/ios/generate_profile", methods=["POST"])
+def generate_ios_profile():
+    try:
+        data = request.json or {}
+        selected = data.get("selected", None)
+        institutional = data.get("institutional", False)
+
+        path = generate_cis_profile(
+            selected_rule_ids=selected if selected else None,
+            output_path=os.path.join(OUTPUT_DIR, "cis_hardening.mobileconfig"),
+            institutional = institutional
+        )
+        return send_file(
+            path,
+            mimetype="application/x-apple-aspen-config",
+            as_attachment=True,
+            download_name="cis_hardening.mobileconfig",
+        )
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -38,6 +38,10 @@ button {
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+#ios-profile-btn {
+  display:none
+}
+
 button:hover:not(:disabled) {
   background: #373d56;
   border-color: #525a7a;
@@ -60,7 +64,6 @@ button:disabled {
 
 
 /* Device info*/
-
 
 #device-info {
   display: none;
@@ -85,7 +88,6 @@ button:disabled {
 
 
 /* Score*/
-
 
 #score-section {
   display: none;
@@ -114,7 +116,6 @@ button:disabled {
 
 /* Results section*/
 
-
 #results-section { display: none; }
 #results-section h2 { font-size: 0.85rem; margin-bottom: 8px; color: #e0e2e8; }
 
@@ -131,7 +132,6 @@ button:disabled {
 
 
 /* Table*/
-
 
 table {
   width: 100%;
@@ -170,7 +170,6 @@ thead th:nth-child(6) { width: 70px; }
 
 /* Status colours*/
 
-
 .pass   { color: #69db7c; }
 .fail   { color: #ff6b6b; }
 .manual { color: #ffa94d; }
@@ -192,7 +191,6 @@ thead th:nth-child(6) { width: 70px; }
 
 
 /* Expandable detail rows*/
-
 
 .result-row:hover {
   background: #333850;
@@ -242,7 +240,6 @@ thead th:nth-child(6) { width: 70px; }
 
 /* Truncate*/
 
-
 .truncate {
   max-width: 250px;
   white-space: nowrap;
@@ -254,7 +251,6 @@ thead th:nth-child(6) { width: 70px; }
 
 
 /* Connection indicator*/
-
 
 .status-container {
   display: flex;
@@ -286,7 +282,6 @@ thead th:nth-child(6) { width: 70px; }
 
 /* Toast notifications*/
 
-
 #toast-container {
   position: fixed;
   bottom: 24px;
@@ -314,7 +309,6 @@ thead th:nth-child(6) { width: 70px; }
 
 
 /* Modal*/
-
 
 .modal-overlay {
   position: fixed;
@@ -388,10 +382,11 @@ thead th:nth-child(6) { width: 70px; }
   color: #7a7f94;
 }
 
+
 .spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid #3d4460;
+  width: 76px;
+  height: 76px;
+  border: 8px solid #3d4460;
   border-top-color: #7c8cf8;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -403,7 +398,6 @@ thead th:nth-child(6) { width: 70px; }
 
 
 /* Tooltip */
-
 
 .tooltip-box {
   display: none;
@@ -444,8 +438,6 @@ thead th:nth-child(6) { width: 70px; }
 
 
 /* Badges */
-
-
 
 .badge-fix {
   background: #1a3a2a;

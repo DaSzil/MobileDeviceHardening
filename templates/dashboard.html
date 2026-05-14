@@ -19,6 +19,7 @@
   <div class="button-container" style="margin-bottom: 20px;">
     <button id="run-btn" onclick="runAudit()">Run Audit</button>
     <button id="fix-btn" onclick="runBulkRemediation()" disabled >Apply Recommended Values</button>
+    <button id="ios-profile-btn" onclick="openProfileModal()" disabled >Build CIS Profile</button>
   </div>
 
   <div id="status">Idle. Please connect a device and run an audit.</div>
@@ -89,6 +90,35 @@
     </table>
   </div>
 
+  <div id="ios-profile-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width: 520px;">
+        <h3>Build CIS Profile</h3>
+        <p style="font-size:0.8rem; color:#7a7f94; margin-bottom:16px;">
+            Select the rules you want to enforce. The profile will be downloaded
+            and can be installed via Settings → General → VPN & Device Management.
+        </p>
+
+        <div id="profile-rule-list" style="
+            max-height: 340px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            border: 1px solid #3d4460;
+            border-radius: 6px;
+            padding: 8px 0;
+        "></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:0.8rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                <input type="checkbox" id="profile-select-all" onchange="toggleAllProfileRules(this)">
+                Select all
+            </label>
+            <div style="display:flex; gap:8px;">
+                <button onclick="closeProfileModal()" style="margin:0;">Cancel</button>
+                <button onclick="downloadProfile()" style="margin:0;">Generate & Download</button>
+            </div>
+        </div>
+    </div>
+  </div>
   <div id="custom-modal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
         <h3>System Confirmation</h3>
@@ -103,7 +133,7 @@
   <div id="loading-overlay">
       <div class="loading-box">
           <div class="spinner"></div>
-          <p id="loading-text">Loading...</p>
+          <p id="loading-text" style="font-size: 1.2rem;">Loading...</p>
       </div>
   </div>
 

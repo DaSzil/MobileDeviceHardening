@@ -18,7 +18,7 @@ async function runBulkRemediation() {
   if (!confirmed)
     return;
 
-  document.getElementById('fix-btn').disabled = true;
+  document.getElementById('fix-btn').disabled = data.device?.platform === 'iOS';
   document.getElementById('status').textContent = "Executing selected fixes...";
 
   for (const cb of selectedCheckboxes){
@@ -95,6 +95,7 @@ function toggleAll(masterCheckbox) {
 
 
 function runAudit() {
+    profileRules = [];
     document.getElementById('run-btn').disabled = true;
     document.getElementById('status').textContent = 'Running audit...';
     document.getElementById('loading-overlay').style.display = 'flex';
@@ -129,6 +130,8 @@ function pollStatus() {
                 document.getElementById('fix-btn').disabled = false;
                 document.getElementById('status').textContent = 'Audit complete.';
                 renderDevice(data.device);
+                const iosBtn = document.getElementById('ios-profile-btn');
+                if (iosBtn) iosBtn.disabled = data.device?.platform !== 'iOS';
                 renderScore(data.score);
                 allResults = data.results || [];
                 renderResults(allResults);
@@ -136,6 +139,17 @@ function pollStatus() {
                 document.getElementById('device-info').style.display = 'block';
                 document.getElementById('score-section').style.display = 'block';
                 document.getElementById('results-section').style.display = 'block';
+                if (data.platform === 'ios') {
+                    document.getElementById('run-btn').textContent   = 'View Recommendations';
+                    document.getElementById('fix-btn').style.display = 'none';
+                    document.getElementById('ios-profile-btn').style.display = 'inline-block';
+                }
+                else {
+                    document.getElementById('run-btn').textContent   = 'Run Audit';
+                    document.getElementById('fix-btn').disabled      = false;
+                    document.getElementById('fix-btn').style.display = 'inline-block';
+                    document.getElementById('ios-profile-btn').style.display = 'none';
+                }
             } else if (data.status === 'error') {
                 clearInterval(pollInterval);
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -287,17 +301,35 @@ function checkConnection() {
     fetch('/api/ping_device')
         .then(r => r.json())
         .then(data => {
-            const light = document.getElementById('conn-light');
-            const text = document.getElementById('conn-text');
-            const runBtn = document.getElementById('run-btn');
+            const light      = document.getElementById('conn-light');
+            const text       = document.getElementById('conn-text');
+            const runBtn     = document.getElementById('run-btn');
+            const fixBtn     = document.getElementById('fix-btn');
+            const iosBtn     = document.getElementById('ios-profile-btn');
+
             if (data.connected) {
-                light.className = 'indicator-light light-green';
-                text.textContent = 'Device Connected & Ready';
-                runBtn.disabled = false;
+                light.className  = 'indicator-light light-green';
+                runBtn.disabled  = false;
+
+                if (data.platform === 'ios') {
+                    text.textContent     = 'iOS Device Connected & Ready';
+                    runBtn.textContent   = 'View Recommendations';
+                    fixBtn.style.display = 'none';
+                    iosBtn.style.display = 'inline-block';
+                } else {
+                    text.textContent     = 'Android Device Connected & Ready';
+                    runBtn.textContent   = 'Run Audit';
+                    fixBtn.style.display = 'inline-block';
+                    iosBtn.style.display = 'none';
+                }
+
             } else {
-                light.className = 'indicator-light light-red';
-                text.textContent = 'No Device Detected';
-                runBtn.disabled = true;
+                light.className      = 'indicator-light light-red';
+                text.textContent     = 'No Device Detected';
+                runBtn.disabled      = true;
+                runBtn.textContent   = 'Run Audit';
+                fixBtn.style.display = 'inline-block';
+                iosBtn.style.display = 'none';
             }
         });
 }
@@ -327,6 +359,121 @@ function closeModal() {
     document.getElementById('custom-modal').style.display = 'none';
 }
 
+let profileRules = [];
+
+function openProfileModal() {
+    // Load rules from backend if not already loaded
+    if (profileRules.length === 0) {
+        fetch('/api/ios/profile_rules')
+            .then(r => r.json())
+            .then(rules => {
+                profileRules = rules;
+                renderProfileRules(rules);
+            });
+    } else {
+        renderProfileRules(profileRules);
+    }
+    document.getElementById('ios-profile-modal').style.display = 'flex';
+}
+
+function closeProfileModal() {
+    document.getElementById('ios-profile-modal').style.display = 'none';
+}
+
+function renderProfileRules(rules) {
+    const container = document.getElementById('profile-rule-list');
+    container.innerHTML = '';
+
+    // Group rules by their group field
+    const groups = {};
+    rules.forEach(r => {
+        if (!groups[r.group]) groups[r.group] = [];
+        groups[r.group].push(r);
+    });
+
+    Object.entries(groups).forEach(([groupName, groupRules]) => {
+        // Group header
+        const header = document.createElement('div');
+        header.style.cssText = `
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #7a7f94;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #23273a;
+            margin-top: 4px;
+        `;
+        header.textContent = groupName;
+        container.appendChild(header);
+
+        // Rules in group
+        groupRules.forEach(rule => {
+            const row = document.createElement('label');
+            row.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 7px 12px;
+                font-size: 0.82rem;
+                cursor: pointer;
+                border-bottom: 1px solid #3d4460;
+                color: #e0e2e8;
+            `;
+            row.innerHTML = `
+                <input type="checkbox"
+                       class="profile-rule-checkbox"
+                       data-id="${rule.id}"
+                       checked>
+                <span style="color:#7a7f94; min-width:52px; font-size:0.75rem;">${rule.id}</span>
+                <span>${rule.title}</span>
+            `;
+            row.addEventListener('mouseenter', () => row.style.background = '#2e3347');
+            row.addEventListener('mouseleave', () => row.style.background = '');
+            container.appendChild(row);
+        });
+    });
+
+    // Sync select-all state
+    document.getElementById('profile-select-all').checked = true;
+}
+
+function toggleAllProfileRules(masterCb) {
+    document.querySelectorAll('.profile-rule-checkbox')
+        .forEach(cb => cb.checked = masterCb.checked);
+}
+
+function downloadProfile() {
+    const selected = [];
+    document.querySelectorAll('.profile-rule-checkbox:checked')
+        .forEach(cb => selected.push(cb.getAttribute('data-id')));
+
+    if (selected.length === 0) {
+        showToast("Please select at least one rule.");
+        return;
+    }
+
+    showToast(`Generating profile with ${selected.length} rules...`);
+
+    fetch('/api/ios/generate_profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected, institutional: false })
+    })
+    .then(r => r.blob())
+    .then(blob => {
+        // Trigger download
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'cis_hardening.mobileconfig';
+        a.click();
+        URL.revokeObjectURL(url);
+        closeProfileModal();
+        showToast("Profile downloaded. Install via Settings → VPN & Device Management.");
+    })
+    .catch(() => showToast("Error generating profile."));
+}
 
 function updateSelection(id, isChecked) {
     // Find the rule in our main data array and update its 'selected' property

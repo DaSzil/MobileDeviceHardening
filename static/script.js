@@ -1,6 +1,24 @@
 let allResults = [];
 let activeFilter = 'ALL';
 let pollInterval = null;
+let deviceRegistry = new Map();
+let activeDeviceSerial = null;
+
+
+// Loading
+function showLoading() {
+  const el = document.getElementById('loading-overlay');
+  el.style.display = 'flex';
+  void el.offsetWidth;
+  el.classList.add('visible');
+}
+
+function hideLoading() {
+  const el = document.getElementById('loading-overlay');
+  el.classList.remove('visible');
+  setTimeout(() => { el.style.display = 'none'; }, 300);
+}
+
 
 // Initial UI
 document.getElementById('device-info').style.display = 'none';
@@ -9,6 +27,7 @@ document.getElementById('results-section').style.display = 'none';
 
 async function runBulkRemediation() {
   const selectedCheckboxes = document.querySelectorAll('.remediation-checkbox:checked');
+
   if (selectedCheckboxes.length === 0){
     showToast("Please select at least one rule in order to modify it.");
     return;
@@ -18,7 +37,7 @@ async function runBulkRemediation() {
   if (!confirmed)
     return;
 
-  document.getElementById('fix-btn').disabled = data.device?.platform === 'iOS';
+  document.getElementById('fix-btn').disabled = true;
   document.getElementById('status').textContent = "Executing selected fixes...";
 
   for (const cb of selectedCheckboxes){
@@ -95,22 +114,40 @@ function toggleAll(masterCheckbox) {
 
 
 function runAudit() {
+    if (!activeDeviceSerial) {
+        showToast("No active device selected.");
+        return;
+    }
+
+    const activeDev = deviceRegistry.get(activeDeviceSerial);
+
     profileRules = [];
     document.getElementById('run-btn').disabled = true;
     document.getElementById('status').textContent = 'Running audit...';
-    document.getElementById('loading-overlay').style.display = 'flex';
+    showLoading();
     document.getElementById('loading-text').textContent = 'Loading...';
 
+    const payload = JSON.stringify({
+        serial: activeDeviceSerial,
+        platform: activeDev.platform
+    });
 
     fetch('/api/reset', { method: 'POST' })
-        .then(() => fetch('/api/run', { method: 'POST' }))
+        .then(() => fetch('/api/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                serial:   activeDeviceSerial,
+                platform: activeDev.platform
+            })
+        }))
         .then(() => {
             pollInterval = setInterval(pollStatus, 1000);
         })
         .catch(() => {
             document.getElementById('status').textContent = 'Error: could not start audit.';
             document.getElementById('run-btn').disabled = false;
-            document.getElementById('loading-overlay').style.display = 'none';
+            hideLoading();
         });
 }
 
@@ -118,46 +155,89 @@ function pollStatus() {
     fetch('/api/status')
         .then(r => r.json())
         .then(data => {
-            if (data.status === 'awaiting-trust') {
+            if (data.status === 'awaiting_trust') {
                 document.getElementById('loading-text').textContent =
-                'Accept the Trust dialog on your iPhone, then enter your passcode...';
+                    'Accept the Trust dialog on your iPhone, then enter your passcode...';
                 return;
             }
+
             if (data.status === 'done') {
                 clearInterval(pollInterval);
-                document.getElementById('loading-overlay').style.display = 'none'
+                hideLoading();
                 document.getElementById('run-btn').disabled = false;
                 document.getElementById('fix-btn').disabled = false;
                 document.getElementById('status').textContent = 'Audit complete.';
-                renderDevice(data.device);
-                const iosBtn = document.getElementById('ios-profile-btn');
-                if (iosBtn) iosBtn.disabled = data.device?.platform !== 'iOS';
-                renderScore(data.score);
+
+                const revealEl = (id, delay = 0) => {
+                    const el = document.getElementById(id);
+                    el.style.display = 'block';
+                    el.classList.remove('reveal');
+                    void el.offsetWidth;
+                    el.style.animationDelay = delay + 'ms';
+                    el.classList.add('reveal');
+                };
+
+                revealEl('device-info', 440);
+                revealEl('score-section', 500);
+                revealEl('results-section', 560);
+
+                // Stagger each device-field inside device-info
+                document.querySelectorAll('.device-field').forEach((el, i) => {
+                  el.classList.remove('reveal');
+                  void el.offsetWidth;
+                  el.classList.add('reveal');
+                  el.style.animationDelay = (i * 60) + 'ms';
+                });
+
+                // Results heading
+                const resultsHeading = document.querySelector('#results-section h1');
+                if (resultsHeading) {
+                  resultsHeading.classList.remove('reveal');
+                  void resultsHeading.offsetWidth;
+                  resultsHeading.classList.add('reveal');
+                }
+
+                // Store results on the device entry
+                if (activeDeviceSerial && deviceRegistry.has(activeDeviceSerial)) {
+                    const dev    = deviceRegistry.get(activeDeviceSerial);
+                    dev.score    = data.score;
+                    dev.results  = data.results || [];
+                    dev.device   = data.device  || {};
+                    dev.platform = data.platform || dev.platform;
+                }
+
                 allResults = data.results || [];
+                renderDevice(data.device);
+                renderScore(data.score);
                 renderResults(allResults);
+                renderDeviceTabs();
+
                 document.getElementById('select-all-checkbox').checked = false;
-                document.getElementById('device-info').style.display = 'block';
-                document.getElementById('score-section').style.display = 'block';
+                document.getElementById('device-info').style.display   = 'block';
+                document.getElementById('score-section').style.display  = 'block';
                 document.getElementById('results-section').style.display = 'block';
+
                 if (data.platform === 'ios') {
                     document.getElementById('run-btn').textContent   = 'View Recommendations';
-                    document.getElementById('fix-btn').style.display = 'none';
+                    document.getElementById('fix-btn').style.display  = 'none';
                     document.getElementById('ios-profile-btn').style.display = 'inline-block';
-                }
-                else {
+                } else {
                     document.getElementById('run-btn').textContent   = 'Run Audit';
-                    document.getElementById('fix-btn').disabled      = false;
-                    document.getElementById('fix-btn').style.display = 'inline-block';
+                    document.getElementById('fix-btn').disabled       = false;
+                    document.getElementById('fix-btn').style.display  = 'inline-block';
                     document.getElementById('ios-profile-btn').style.display = 'none';
                 }
+
             } else if (data.status === 'error') {
                 clearInterval(pollInterval);
-                document.getElementById('loading-overlay').style.display = 'none';
+                hideLoading();
                 document.getElementById('run-btn').disabled = false;
                 document.getElementById('status').textContent = 'Error: Check terminal for details.';
             }
         });
 }
+
+
 
 function renderDevice(d) {
     if (!d) return;
@@ -169,25 +249,56 @@ function renderDevice(d) {
     document.getElementById('d-serial').textContent       = d.serial       || '—';
     document.getElementById('d-platform').textContent     = d.platform     || '—';
 
-    // Change "Android Version" label dynamically based on platform
     document.getElementById('label-os').textContent =
         d.platform === 'iOS' ? 'iOS Version' : 'Android Version';
 
-    // Hide security patch for iOS since it's N/A
     document.getElementById('patch-field').style.display =
-        d.platform === 'iOS' ? 'none' : 'block';
+        d.platform === 'iOS' ? 'none' : 'flex';
 }
 
 function renderScore(score) {
     if (score === null || score === undefined) return;
+    const num = parseInt(score);
     document.getElementById('score-text').textContent = score + '%';
-    document.getElementById('score-bar').style.width = score + '%';
+    document.getElementById('score-bar').style.width  = score + '%';
+
+    const color = num >= 80 ? '#69db7c' : num >= 50 ? '#ffa94d' : '#ff6b6b';
+    document.getElementById('score-bar').style.background = color;
 }
 
-function setFilter(f) {
-    activeFilter = f;
-    renderResults(allResults);
+
+// Debouncer
+let searchDebounceTimer = null;
+
+document.getElementById('search-input').addEventListener('input', () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(applyFilters, 450);
+});
+
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const filter = document.getElementById('filter-select').value;
+  const sort   = document.getElementById('sort-select').value;
+
+  let results = [...allResults];
+
+  // Filter by status
+  if (filter !== 'ALL' && filter !== '') results = results.filter(r => r.status === filter);
+
+  // Search by title or ID
+  if (search) results = results.filter(r =>
+    r.title?.toLowerCase().includes(search) || r.id?.toLowerCase().includes(search)
+  );
+
+  // Sort
+  if (sort === 'FAIL_FIRST')   results.sort((a, b) => (a.status === 'FAIL'   ? -1 : 1));
+  if (sort === 'PASS_FIRST')   results.sort((a, b) => (a.status === 'PASS'   ? -1 : 1));
+  if (sort === 'MANUAL_FIRST') results.sort((a, b) => (a.status === 'MANUAL' ? -1 : 1));
+
+  renderResults(results);
 }
+
+
 
 function renderResults(results) {
     const filtered = activeFilter === 'ALL'
@@ -298,6 +409,7 @@ function renderResults(results) {
 
 function checkConnection() {
     if (document.getElementById('status').textContent === 'Running audit...') return;
+
     fetch('/api/ping_device')
         .then(r => r.json())
         .then(data => {
@@ -307,17 +419,39 @@ function checkConnection() {
             const fixBtn     = document.getElementById('fix-btn');
             const iosBtn     = document.getElementById('ios-profile-btn');
 
-            if (data.connected) {
+            const liveDevices = data.devices || [];
+            const connectedSerials = new Set();
+
+            if (liveDevices.length > 0) {
                 light.className  = 'indicator-light light-green';
+                text.textContent = `${liveDevices.length} Device(s) Connected`;
                 runBtn.disabled  = false;
 
-                if (data.platform === 'ios') {
-                    text.textContent     = 'iOS Device Connected & Ready';
+                liveDevices.forEach(d => {
+                    connectedSerials.add(d.serial);
+                    if (!deviceRegistry.has(d.serial)) {
+                        deviceRegistry.set(d.serial, {
+                            platform: d.platform,
+                            serial: d.serial,
+                            name: d.name || d.serial,
+                            score: null
+                        });
+                    }
+                    else{
+                        deviceRegistry.get(d.serial).name = d.name || d.serial;
+                    }
+                });
+
+                if (!activeDeviceSerial || !connectedSerials.has(activeDeviceSerial)) {
+                    activeDeviceSerial = liveDevices[0].serial;
+                }
+
+                const activeDev = deviceRegistry.get(activeDeviceSerial);
+                if (activeDev && activeDev.platform === 'ios') {
                     runBtn.textContent   = 'View Recommendations';
                     fixBtn.style.display = 'none';
                     iosBtn.style.display = 'inline-block';
                 } else {
-                    text.textContent     = 'Android Device Connected & Ready';
                     runBtn.textContent   = 'Run Audit';
                     fixBtn.style.display = 'inline-block';
                     iosBtn.style.display = 'none';
@@ -325,13 +459,92 @@ function checkConnection() {
 
             } else {
                 light.className      = 'indicator-light light-red';
-                text.textContent     = 'No Device Detected';
+                text.textContent     = 'No Device Connected';
                 runBtn.disabled      = true;
                 runBtn.textContent   = 'Run Audit';
                 fixBtn.style.display = 'inline-block';
                 iosBtn.style.display = 'none';
+                activeDeviceSerial   = null;
             }
+
+            for (const serial of deviceRegistry.keys()) {
+                if (!connectedSerials.has(serial)) {
+                    deviceRegistry.delete(serial);
+                }
+            }
+
+            renderDeviceTabs();
+        })
+        .catch(err => console.error("Connection polling error:", err));
+}
+
+function renderDeviceTabs() {
+    const tabsContainer = document.getElementById('device-tabs');
+    if (!tabsContainer) return;
+
+    tabsContainer.innerHTML = '';
+
+    if (deviceRegistry.size === 0) {
+        tabsContainer.innerHTML = '<div class="no-devices-msg">No devices connected or audited.</div>';
+        return;
+    }
+
+    deviceRegistry.forEach((dev, serial) => {
+        const tab = document.createElement('div');
+        const isActive = serial === activeDeviceSerial ? 'active' : '';
+        tab.className = `device-tab ${isActive}`;
+
+        let statusClass = 'running';
+        let statusText  = 'Pending Audit';
+
+        if (dev.score !== undefined && dev.score !== null) {
+            statusClass = dev.score >= 75 ? 'done-pass' : 'done-fail';
+            statusText  = `Score: ${dev.score}%`;
+        }
+
+        tab.innerHTML = `
+            <div class="tab-platform">${dev.platform || 'Unknown OS'}</div>
+            <div class="tab-serial">${dev.name || 'Unknown Device'}</div>
+            <div class="tab-status ${statusClass}">${statusText}</div>
+        `;
+
+        tab.addEventListener('click', () => {
+            activeDeviceSerial = serial;
+
+            const dev = deviceRegistry.get(serial);
+            if (dev && dev.results) {
+                allResults = dev.results;
+                renderDevice(dev.device || {});
+                renderScore(dev.score);
+                renderResults(allResults);
+                document.getElementById('device-info').style.display     = 'block';
+                document.getElementById('score-section').style.display   = 'block';
+                document.getElementById('results-section').style.display = 'block';
+
+                const runBtn = document.getElementById('run-btn');
+                const fixBtn = document.getElementById('fix-btn');
+                const iosBtn = document.getElementById('ios-profile-btn');
+                if (dev.platform === 'ios') {
+                    runBtn.textContent   = 'View Recommendations';
+                    fixBtn.style.display = 'none';
+                    iosBtn.style.display = 'inline-block';
+                } else {
+                    runBtn.textContent   = 'Run Audit';
+                    fixBtn.style.display = 'inline-block';
+                    iosBtn.style.display = 'none';
+                }
+            } else {
+                document.getElementById('status').textContent           = 'Device selected. Press Run Audit to begin.';
+                document.getElementById('device-info').style.display    = 'none';
+                document.getElementById('score-section').style.display  = 'none';
+                document.getElementById('results-section').style.display = 'none';
+            }
+
+            renderDeviceTabs();
         });
+
+        tabsContainer.appendChild(tab);
+    });
 }
 
 // Custom Notifications

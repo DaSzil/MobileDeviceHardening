@@ -6,142 +6,168 @@
   <title>Device Hardening Audit</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
+
+
 <body>
-
-  <h1>Device Hardening Audit</h1>
-  <p class="sub">Android/iOS Security Assessment</p>
-
-  <div class="status-container">
-    <span class="indicator-light light-red" id="conn-light"></span>
-    <span id="conn-text">No Device Detected</span>
-  </div>
-
-  <div class="button-container" style="margin-bottom: 20px;">
-    <button id="run-btn" onclick="runAudit()">Run Audit</button>
-    <button id="fix-btn" onclick="runBulkRemediation()" disabled >Apply Recommended Values</button>
-    <button id="ios-profile-btn" onclick="openProfileModal()" disabled >Build CIS Profile</button>
-  </div>
-
-  <div id="status">Idle. Please connect a device and run an audit.</div>
-
-  <div id="device-info">
-    <h2>Device Info</h2>
-    <div class="device-grid">
-        <div class="device-field">
-            <span>Platform</span>
-            <span id="d-platform">—</span>
-        </div>
-        <div class="device-field">
-            <span>Manufacturer</span>
-            <span id="d-manufacturer">—</span>
-        </div>
-        <div class="device-field">
-            <span>Model</span>
-            <span id="d-model">—</span>
-        </div>
-        <div class="device-field" id="patch-field">
-            <span>Security Patch</span>
-            <span id="d-patch">—</span>
-        </div>
-        <div class="device-field">
-            <span id="label-os">Android Version</span>
-            <span id="d-android">—</span>
-        </div>
-        <div class="device-field">
-            <span>Serial</span>
-            <span id="d-serial">—</span>
-        </div>
-    </div>
-  </div>
-
-  <div id="score-section">
-    <h2>Compliance Score</h2>
-    <span id="score-text">—</span>
-    <div class="score-bar-wrap">
-      <div class="score-bar-fill" id="score-bar" style="width:0%"></div>
-    </div>
-  </div>
-
-  <div id="results-section">
-    <h2>Results</h2>
-    <div class="filter-row">
-      Filter
-        <button onclick="setFilter('ALL')">All</button>
-        <button onclick="setFilter('PASS')">Pass</button>
-        <button onclick="setFilter('FAIL')">Fail</button>
-        <button onclick="setFilter('MANUAL')">Manual</button>
-        <button onclick="setFilter('N/A')">N/A</button>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th style = "text-align: center;">
-              <div>Select</div>
-              <input type="checkbox" id="select-all-checkbox" onclick="toggleAll(this)  ">
-          </th>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Found</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="results-body"></tbody>
-    </table>
-  </div>
-
-  <div id="ios-profile-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-box" style="max-width: 520px;">
-        <h3>Build CIS Profile</h3>
-        <p style="font-size:0.8rem; color:#7a7f94; margin-bottom:16px;">
-            Select the rules you want to enforce. The profile will be downloaded
-            and can be installed via Settings → General → VPN & Device Management.
-        </p>
-
-        <div id="profile-rule-list" style="
-            max-height: 340px;
-            overflow-y: auto;
-            margin-bottom: 16px;
-            border: 1px solid #3d4460;
-            border-radius: 6px;
-            padding: 8px 0;
-        "></div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="font-size:0.8rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
-                <input type="checkbox" id="profile-select-all" onchange="toggleAllProfileRules(this)">
-                Select all
-            </label>
-            <div style="display:flex; gap:8px;">
-                <button onclick="closeProfileModal()" style="margin:0;">Cancel</button>
-                <button onclick="downloadProfile()" style="margin:0;">Generate & Download</button>
+<div class="layout">
+    <div class="side-panel" id="side-panel">
+        <div class="side-panel-header">
+            <div class="status-container">
+                <span class="indicator-light light-red" id="conn-light"></span>
+                <span class="conn-text" id="conn-text">No Device Connected</span>
             </div>
         </div>
-    </div>
-  </div>
-  <div id="custom-modal" class="modal-overlay" style="display:none;">
-    <div class="modal-box">
-        <h3>System Confirmation</h3>
-        <p id="modal-message"></p>
-        <div class="modal-buttons">
-            <button id="modal-confirm" class="btn-confirm">Confirm</button>
-            <button onclick="closeModal()" class="btn-cancel">Cancel</button>
+        <div id="device-tabs">
+            <div class="no-devices-msg">No Devices Connected</div>
         </div>
     </div>
-  </div>
 
-  <div id="loading-overlay">
-      <div class="loading-box">
-          <div class="spinner"></div>
-          <p id="loading-text" style="font-size: 1.2rem;">Loading...</p>
-      </div>
-  </div>
 
-  <div id="toast-container"></div>
+    <div class="main-panel">
+            <div class="device-content" id="device-content">
+                  <h1 class="main-text">Device Hardening Audit</h1>
+            </div>
+            <p class="sub">Android/iOS Security Assessment</p>
+            <div class="button-container" style="margin-bottom: 20px;">
+                <button id="run-btn" onclick="runAudit()">Run Audit</button>
+                <button id="fix-btn" onclick="runBulkRemediation()" disabled >Apply Recommended Values</button>
+                <button id="ios-profile-btn" onclick="openProfileModal()" disabled >Build CIS Profile</button>
+            </div>
 
+            <div id="status">Idle. Please connect a device and run an audit.</div>
+
+            <div id="device-info">
+                <h2 class="device-info-header">Device Info</h2>
+                    <div class="device-grid">
+                        <div class="device-field df-platform">
+                            <span>Platform</span>
+                            <span id="d-platform">—</span>
+                        </div>
+                        <div class="device-field df-manufacturer">
+                            <span>Manufacturer</span>
+                            <span id="d-manufacturer">—</span>
+                        </div>
+                        <div class="device-field df-model">
+                            <span>Model</span>
+                            <span id="d-model">—</span>
+                        </div>
+                        <div class="device-field df-patch" id="patch-field">
+                            <span>Security Patch</span>
+                            <span id="d-patch">—</span>
+                        </div>
+                        <div class="device-field df-os">
+                            <span id="label-os">Android Version</span>
+                            <span id="d-android">—</span>
+                        </div>
+                        <div class="device-field df-serial">
+                            <span>Serial</span>
+                            <span id="d-serial">—</span>
+                        </div>
+                    </div>
+            </div>
+
+            <div id="score-section">
+                <h2>Compliance Score</h2>
+                <span id="score-text">—</span>
+                    <div class="score-bar-wrap">
+                        <div class="score-bar-fill" id="score-bar" style="width:0%"></div>
+                    </div>
+            </div>
+
+          <div id="results-section">
+              <h1>Results</h1>
+
+              <div class="filter-row">
+                  <input id="search-input" class="search-input" type="text" placeholder="Search rules...">
+                  <div class="dropdown-input">
+                      <select id="filter-select" name="filter-select" class="select-dd" onchange="applyFilters()">
+                          <option value="" disabled selected>Filter by</option>
+                          <option value="ALL">All</option>
+                          <option value="PASS">Pass</option>
+                          <option value="FAIL">Fail</option>
+                          <option value="MANUAL">Manual</option>
+                          <option value="N/A">N/A</option>
+                      </select>
+                      <select id="sort-select" name="sort-select" class="select-dd" onchange="applyFilters()">
+                          <option value="" disabled selected>Sort by</option>
+                          <option value="ID">ID</option>
+                          <option value="PASS_FIRST">Passed first</option>
+                          <option value="FAIL_FIRST">Failed first</option>
+                          <option value="MANUAL_FIRST">Manual first</option>
+                        </select>
+                  </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style = "text-align: center;">
+                      <div>Select</div>
+                      <input type="checkbox" id="select-all-checkbox" onclick="toggleAll(this)  ">
+                  </th>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Found</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+
+          <div id="ios-profile-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-box" style="max-width: 520px;">
+                <h3>Build CIS Profile</h3>
+                <p style="font-size:0.8rem; color:#7a7f94; margin-bottom:16px;">
+                    Select the rules you want to enforce. The profile will be downloaded
+                    and can be installed via Settings → General → VPN & Device Management.
+                </p>
+
+                <div id="profile-rule-list" style="
+                    max-height: 340px;
+                    overflow-y: auto;
+                    margin-bottom: 16px;
+                    border: 1px solid #3d4460;
+                    border-radius: 6px;
+                    padding: 8px 0;
+                "></div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="font-size:0.8rem; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                        <input type="checkbox" id="profile-select-all" onchange="toggleAllProfileRules(this)">
+                        Select all
+                    </label>
+                    <div style="display:flex; gap:8px;">
+                        <button onclick="closeProfileModal()" style="margin:0;">Cancel</button>
+                        <button onclick="downloadProfile()" style="margin:0;">Generate & Download</button>
+                    </div>
+                </div>
+            </div>
+          </div>
+          <div id="custom-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-box">
+                <h3>System Confirmation</h3>
+                <p id="modal-message"></p>
+                <div class="modal-buttons">
+                    <button id="modal-confirm" class="btn-confirm">Confirm</button>
+                    <button onclick="closeModal()" class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+          </div>
+
+          <div id="loading-overlay">
+              <div class="loading-box">
+                  <div class="spinner"></div>
+                  <p id="loading-text">Loading...</p>
+              </div>
+          </div>
+
+          <div id="toast-container"></div>
+        </div>
+    </div>
+</div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
-
-
 </body>
 </html>

@@ -15,7 +15,8 @@ EXE_FOLDER = os.path.join(BASE_DIR, "executables")
 
 IDEVICEINFO_PATH = os.path.join(EXE_FOLDER, "ideviceinfo.exe")
 IDEVICEPAIR_PATH   = os.path.join(EXE_FOLDER, "idevicepair.exe")
-
+IDEVICE_ID_PATH = os.path.join(EXE_FOLDER, "idevice_id.exe")
+IDEVICENAME_PATH = os.path.join(EXE_FOLDER, "idevicename.exe")
 
 from core.android_handler import AndroidHandler
 from core.process import HardeningProcess
@@ -33,6 +34,90 @@ audit_state = {
 
 audit_lock = threading.Lock()
 
+def detect_all_devices():
+    """
+    Detecteaza toate dispozitivele detectate pt oricare sistem de operare
+    Returneaza o lista de dict cu inf despre fiecare dispozitiv
+
+    Format:
+    [
+        { "serial": "val-seriala-Android", "platform": "android", "name": "Redmi Note 11" },
+        { "serial": "val-seriala-iOS",     "platform": "ios",     "name": "Szilard's iPhone" },
+    ]
+    """
+    devices = []
+
+    # Android
+    try:
+        result = subprocess.run(
+            ["adb", "devices"],
+            capture_output=True, text=True, timeout=5
+        )
+        for line in result.stdout.splitlines():
+            line = line.strip()
+            if not line or "List of devices" in line:
+                continue
+            parts = line.split()
+            if len(parts) >= 2 and parts[1] == "device":
+                serial = parts[0]
+
+                name_result = subprocess.run(
+                    ["adb", "-s", serial, "shell", "getprop", "ro.product.marketname"],
+                    capture_output=True, text=True, timeout=5
+                )
+                name = name_result.stdout.strip()
+
+                if not name:
+                    name_result = subprocess.run(
+                        ["adb", "-s", serial, "shell", "getprop", "ro.product.model"],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    name = name_result.stdout.strip() or serial
+
+                devices.append({
+                    "serial": serial,
+                    "platform": "android",
+                    "name": name
+                })
+
+                devices.append({
+                    "serial": serial,
+                    "platform": "android",
+                    "name": name
+                })
+    except Exception:
+        pass
+
+    # iOS
+    try:
+        result = subprocess.run(
+            [IDEVICE_ID_PATH, "-l"],
+            capture_output=True, text=True, timeout=5,
+            encoding='utf-8', errors='replace'
+        )
+        if result.returncode == 0:
+            for line in result.stdout.splitlines():
+                udid = line.strip()
+                if not udid:
+                    continue
+
+                name_result = subprocess.run(
+                    [IDEVICENAME_PATH],
+                    capture_output=True, text=True, timeout=5,
+                    encoding='utf-8', errors='replace'
+                )
+                name = name_result.stdout.strip() or udid
+
+                devices.append({
+                    "serial":   udid,
+                    "platform": "ios",
+                    "name":     name
+                })
+    except Exception:
+        pass
+
+    return devices
+
 
 def detect_platform():
     """
@@ -40,33 +125,10 @@ def detect_platform():
     Returneaza "android", "ios", sau None daca nu este nimic conectat.
     """
     # Verificam Android prin ADB
-    try:
-        result = subprocess.run(["adb", "devices"], capture_output=True, text=True, timeout=5)
-        lines = []
-        for l in result.stdout.splitlines():
-            if l.strip() and "List of devices" not in l:
-                lines.append(l.strip())
-        if len(lines) > 0:
-            return "android"
-    except Exception:
-        pass
-
-    # Verificam iOS prin libimobiledevice
-    try:
-        result = subprocess.run(
-        [IDEVICEINFO_PATH, "-k", "ProductType"],
-              capture_output=True,
-              text=True,
-              timeout=5,
-              encoding='utf-8',
-              errors='replace'
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return "ios"
-    except Exception:
-        pass
-
-    return None
+    devices = detect_all_devices()
+    if not devices:
+        return None
+    return devices[0]["platform"]
 
 def pair_ios_device():
     """
@@ -122,7 +184,7 @@ def pair_ios_device():
 
 
 def check_device_connected():
-    return detect_platform() is not None
+    return len(detect_all_devices()) > 0
 
 
 def get_device_info(platform):
@@ -139,10 +201,13 @@ def get_device_info(platform):
             except Exception:
                 return "Unknown"
 
+        marketname = prop("ro.product.marketname")
+        model = marketname if marketname and marketname != "Unknown" else prop("ro.product.model")
+
         return {
             "platform":     "Android",
             "manufacturer": prop("ro.product.manufacturer"),
-            "model":        prop("ro.product.model"),
+            "model":        model,
             "android":      prop("ro.build.version.release"),
             "patch":        prop("ro.build.version.security_patch"),
             "serial":       prop("ro.serialno"),
@@ -276,10 +341,11 @@ def reset_audit():
 
 @app.route("/api/ping_device")
 def ping_device():
-    platform = detect_platform()
+    devices = detect_all_devices()
     return jsonify({
-        "connected": platform is not None,
-        "platform":  platform
+        "connected": len(devices) > 0,
+        "devices": devices,
+        "platform": devices[0]["platform"] if devices else None # Partea veche a codului
     })
 
 

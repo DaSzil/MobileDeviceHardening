@@ -21,6 +21,7 @@ class HardeningProcess:
             results.append({
                 "id": rule.get('id', '?'),
                 "title": rule.get('title', ''),
+                "level": rule.get('level', None),
                 "status": "MANUAL",
                 "found": "Manual Verification",
                 "description": rule.get('description', ''),
@@ -166,6 +167,7 @@ class HardeningProcess:
                     results.append({
                         "id": rule['id'],
                         "title": rule.get('title', ''),
+                        "level": rule.get('level', None),
                         "status": status,
                         "found": current,
                         "description": rule.get('description', ''),
@@ -224,6 +226,7 @@ class HardeningProcess:
                         results.append({"id": rule['id'],
                                         "title": rule.get('title', ''),
                                         "status": status,
+                                        "level": rule.get('level', None),
                                         "found": current,
                                         "steps": rule.get('steps', []),
                                         })
@@ -242,6 +245,7 @@ class HardeningProcess:
             results.append({
                 "id": rule['id'],
                 "title": rule.get('title', ''),
+                "level": rule.get('level', None),
                 "status": status,
                 "found": current,
                 "description": rule.get('description', ''),

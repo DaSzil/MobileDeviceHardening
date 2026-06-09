@@ -5,6 +5,7 @@ import threading
 import time
 import os
 import traceback
+import socket
 from core.profile_gen import generate_cis_profile, get_all_profile_rules
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -14,7 +15,7 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 EXE_FOLDER = os.path.join(BASE_DIR, "executables")
 
 IDEVICEINFO_PATH = os.path.join(EXE_FOLDER, "ideviceinfo.exe")
-IDEVICEPAIR_PATH   = os.path.join(EXE_FOLDER, "idevicepair.exe")
+IDEVICEPAIR_PATH = os.path.join(EXE_FOLDER, "idevicepair.exe")
 IDEVICE_ID_PATH = os.path.join(EXE_FOLDER, "idevice_id.exe")
 IDEVICENAME_PATH = os.path.join(EXE_FOLDER, "idevicename.exe")
 
@@ -42,7 +43,7 @@ def detect_all_devices():
     Format:
     [
         { "serial": "val-seriala-Android", "platform": "android", "name": "Redmi Note 11" },
-        { "serial": "val-seriala-iOS",     "platform": "ios",     "name": "Szilard's iPhone" },
+        { "serial": "val-seriala-iOS",     "platform": "ios",     "name": "Szil's iPhone" },
     ]
     """
     devices = []
@@ -55,7 +56,7 @@ def detect_all_devices():
         )
         for line in result.stdout.splitlines():
             line = line.strip()
-            if not line or "List of devices" in line:
+            if not line or "List of devices attached" in line:
                 continue
             parts = line.split()
             if len(parts) >= 2 and parts[1] == "device":
@@ -252,32 +253,35 @@ def get_device_info(platform, serial=None):
 
 
 
-def pair_android_wireless(ip, pairing_port, pairing_code):
+def pair_android_wireless(ip, pairing_port, pairing_code, connect_port):
     result = subprocess.run(
         ["adb", "pair", f"{ip}:{pairing_port}", pairing_code],
-        capture_output=True, text=True, timeout=15
+        capture_output=True,
+        text=True,
+        timeout=15
     )
     if "Successfully paired" not in result.stdout:
         return False, None, result.stdout + result.stderr
 
-    for port in ["5555", pairing_port]:
-        connect = subprocess.run(
-            ["adb", "connect", f"{ip}:{port}"],
-            capture_output=True, text=True, timeout=10
+    # Use the explicit connect port the user provided
+    connect = subprocess.run(
+        ["adb", "connect", f"{ip}:{connect_port}"],
+        capture_output=True,
+        text=True,
+        timeout=10
+    )
+    if "connected" in connect.stdout.lower() and "unable" not in connect.stdout.lower():
+        devices = subprocess.run(["adb", "devices"],
+            capture_output=True,
+            text=True,
+            timeout=5
         )
-        if "connected" in connect.stdout.lower():
-            devices = subprocess.run(
-                ["adb", "devices"],
-                capture_output=True, text=True, timeout=5
-            )
-            for line in devices.stdout.splitlines():
-                if ip in line and "device" in line:
-                    serial = line.split()[0]
-                    return True, serial, connect.stdout
+        for line in devices.stdout.splitlines():
+            if ip in line and "device" in line:
+                serial = line.split()[0]
+                return True, serial, connect.stdout
 
-    return False, None, "Paired but could not connect."
-
-
+    return False, None, f"Paired but could not connect: {connect.stdout}"
 
 
 
@@ -354,11 +358,24 @@ def run_audit_task():
 
 
 
+# Preluare IP curent pentru certificat https
+
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
 
 # Routing for Flask
 @app.route("/")
 def index():
     return render_template("dashboard.html")
+
 
 
 @app.route("/api/run", methods=["POST"])
@@ -374,10 +391,12 @@ def run_audit():
     return jsonify({"message": "Audit started"})
 
 
+
 @app.route("/api/status")
 def get_status():
     with audit_lock:
         return jsonify(audit_state)
+
 
 
 @app.route("/api/reset", methods=["POST"])
@@ -391,6 +410,7 @@ def reset_audit():
     return jsonify({"message": "Reset"})
 
 
+
 @app.route("/api/ping_device")
 def ping_device():
     devices = detect_all_devices()
@@ -399,6 +419,7 @@ def ping_device():
         "devices": devices,
         "platform": devices[0]["platform"] if devices else None # Partea veche a codului
     })
+
 
 
 @app.route('/api/remediate', methods=['POST'])
@@ -424,6 +445,7 @@ def ios_profile_rules():
     return jsonify(get_all_profile_rules(institutional= institutional))
 
 
+
 @app.route("/api/ios/generate_profile", methods=["POST"])
 def generate_ios_profile():
     try:
@@ -445,20 +467,53 @@ def generate_ios_profile():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+
+
 @app.route("/api/android/wireless_pair", methods=["POST"])
 def android_wireless_pair():
     data = request.json or {}
-    ip = data.get("ip")
+    ip           = data.get("ip")
     pairing_port = data.get("pairing_port")
     pairing_code = data.get("pairing_code")
+    connect_port = data.get("connect_port")
 
-    if not all([ip, pairing_port, pairing_code]):
+    if not all([ip, pairing_port, pairing_code, connect_port]):
         return jsonify({"status": "error", "message": "Missing fields"}), 400
 
-    success, serial, output = pair_android_wireless(ip, pairing_port, pairing_code)
+    success, serial, output = pair_android_wireless(ip, pairing_port, pairing_code, connect_port)
     if success:
         return jsonify({"status": "success", "serial": serial})
     return jsonify({"status": "error", "message": output}), 500
 
+
+
+
+@app.route("/api/ios/push_profile", methods=["POST"])
+def push_ios_profile():
+    try:
+        import asyncio
+        from pymobiledevice3.lockdown import create_using_usbmux
+        from pymobiledevice3.services.mobile_config import MobileConfigService
+
+        profile_path = os.path.join(OUTPUT_DIR, "cis_hardening.mobileconfig")
+
+        if not os.path.exists(profile_path):
+            return jsonify({"status": "error", "message": "Profile not found. Generate it first."}), 404
+
+        with open(profile_path, "rb") as f:
+            profile_data = f.read()
+            async def do_push():
+                lockdown = await create_using_usbmux()
+                async with MobileConfigService(lockdown) as svc:
+                    await svc.install_profile(profile_data)
+
+            asyncio.run(do_push())
+
+            return jsonify({"status": "success", "message": "Profile pushed to device."})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)

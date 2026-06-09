@@ -155,7 +155,7 @@ function pollStatus() {
     fetch('/api/status')
         .then(r => r.json())
         .then(data => {
-            if (data.status === 'awaiting_trust') {
+            if (data.status === 'awaiting-trust') {
                 document.getElementById('loading-text').textContent =
                     'Accept the Trust dialog on your iPhone, then enter your passcode...';
                 return;
@@ -213,18 +213,19 @@ function pollStatus() {
                 renderDeviceTabs();
 
                 document.getElementById('select-all-checkbox').checked = false;
-                document.getElementById('device-info').style.display   = 'block';
-                document.getElementById('score-section').style.display  = 'block';
+                document.getElementById('device-info').style.display = 'block';
+                document.getElementById('score-section').style.display = 'block';
                 document.getElementById('results-section').style.display = 'block';
 
                 if (data.platform === 'ios') {
-                    document.getElementById('run-btn').textContent   = 'View Recommendations';
-                    document.getElementById('fix-btn').style.display  = 'none';
+                    document.getElementById('run-btn').textContent = 'View Recommendations';
+                    document.getElementById('fix-btn').style.display = 'none';
                     document.getElementById('ios-profile-btn').style.display = 'inline-block';
+                    document.getElementById('ios-profile-btn').disabled = false;
                 } else {
-                    document.getElementById('run-btn').textContent   = 'Run Audit';
-                    document.getElementById('fix-btn').disabled       = false;
-                    document.getElementById('fix-btn').style.display  = 'inline-block';
+                    document.getElementById('run-btn').textContent = 'Run Audit';
+                    document.getElementById('fix-btn').disabled = false;
+                    document.getElementById('fix-btn').style.display = 'inline-block';
                     document.getElementById('ios-profile-btn').style.display = 'none';
                 }
 
@@ -254,6 +255,8 @@ function renderDevice(d) {
 
     document.getElementById('patch-field').style.display =
         d.platform === 'iOS' ? 'none' : 'flex';
+
+
 }
 
 function renderScore(score) {
@@ -335,16 +338,18 @@ function renderResults(results) {
         tr.innerHTML = `
         <td>${checkboxHtml}</td>
         <td><strong>${r.id}</strong></td>
+        <td>${r.level ? `<span class="level-badge level-${r.level}">L${r.level}</span>` : '—'}</td>
         <td>${r.title || ''} <span class="expand-arrow">▸</span></td>
         <td class="${cls}">${r.status}</td>
         <td><div class="truncate" title="${r.found}">${r.found}</div></td>
-        <td>${r.fixable ? '<span class="badge-fix">Fixable</span>' : '<span class="badge-manual">Manual</span>'}</td> `;
+        <td>${r.fixable ? '<span class="badge-fix">Fixable</span>' : '<span class="badge-manual">Manual</span>'}</td>`;
+
 
         const dr = document.createElement('tr');
         dr.className = 'detail-row';
         dr.style.display = 'none';
         dr.innerHTML = `
-            <td colspan="6">
+            <td colspan="7">
                 <div class="detail-box">
                     <div class="detail-line"><span class="detail-label">Description</span><span>${r.description || ''}</span></div>
                     <div class="detail-line"><span class="detail-label">Rationale</span><span>${r.rationale || ''}</span></div>
@@ -451,6 +456,7 @@ function checkConnection() {
                     runBtn.textContent   = 'View Recommendations';
                     fixBtn.style.display = 'none';
                     iosBtn.style.display = 'inline-block';
+                    iosBtn.disabled = false
                 } else {
                     runBtn.textContent   = 'Run Audit';
                     fixBtn.style.display = 'inline-block';
@@ -665,8 +671,9 @@ function downloadProfile() {
         showToast("Please select at least one rule.");
         return;
     }
-
-    showToast(`Generating profile with ${selected.length} rules...`);
+    const generateBtn = document.querySelector('#ios-profile-modal button[onclick="downloadProfile()"]');
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Generating...';
 
     fetch('/api/ios/generate_profile', {
         method: 'POST',
@@ -675,18 +682,30 @@ function downloadProfile() {
     })
     .then(r => r.blob())
     .then(blob => {
-        // Trigger download
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
         a.download = 'cis_hardening.mobileconfig';
         a.click();
         URL.revokeObjectURL(url);
-        closeProfileModal();
-        showToast("Profile downloaded. Install via Settings → VPN & Device Management.");
+
+        // Push to device
+        generateBtn.textContent = 'Pushing to device...';
+        return fetch('/api/ios/push_profile', { method: 'POST' });
     })
-    .catch(() => showToast("Error generating profile."));
+    .then(r => r.json())
+    .then(data => {
+        showToast(data.message || "Profile pushed.");
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate & Download';
+    })
+    .catch(() => {
+        showToast("Error generating or pushing profile.");
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate & Download';
+    });
 }
+
 
 function updateSelection(id, isChecked) {
     // Find the rule in our main data array and update its 'selected' property
@@ -705,45 +724,60 @@ function closeWirelessModal() {
   document.getElementById('wp-status').textContent = '';
   document.getElementById('wp-ip').value   = '';
   document.getElementById('wp-port').value = '';
+  document.getElementById('wp-connect-port').value = '';
   document.getElementById('wp-code').value = '';
 }
 
 function submitPairing() {
-  const ip   = document.getElementById('wp-ip').value.trim();
-  const port = document.getElementById('wp-port').value.trim();
-  const code = document.getElementById('wp-code').value.trim();
-  const statusEl = document.getElementById('wp-status');
+    const ip = document.getElementById('wp-ip').value.trim();
+    const port = document.getElementById('wp-port').value.trim();
+    const connectPort = document.getElementById('wp-connect-port').value.trim();
+    const code = document.getElementById('wp-code').value.trim();
+    const statusEl = document.getElementById('wp-status');
 
-  if (!ip || !port || !code) {
-    statusEl.className = 'status-msg error';
-    statusEl.textContent = 'Please fill in all fields.';
-    return;
-  }
-
-  statusEl.className = 'status-msg loading';
-  statusEl.textContent = 'Pairing...';
-
-  fetch('/api/android/wireless_pair', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ip, pairing_port: port, pairing_code: code })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.status === 'success') {
-        statusEl.className = 'status-msg success';
-        statusEl.textContent = 'Paired! Device will appear in the sidebar.';
-        setTimeout(closeWirelessModal, 2000);
-    } else {
+    if (!ip || !port || !code) {
         statusEl.className = 'status-msg error';
-        statusEl.textContent = data.message || 'Pairing failed.';
+        statusEl.textContent = 'Please fill in all fields.';
+        return;
     }
-  })
-  .catch(() => {
-    statusEl.className = 'status-msg error';
-    statusEl.textContent = 'Could not reach the server.';
-  });
+
+    statusEl.className = 'status-msg loading';
+    statusEl.textContent = 'Pairing...';
+
+    fetch('/api/android/wireless_pair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip, pairing_port: port, connect_port: connectPort, pairing_code: code })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            statusEl.className = 'status-msg success';
+            statusEl.textContent = 'Paired! Device will appear in the sidebar.';
+            checkConnection();
+            setTimeout(closeWirelessModal, 2000);
+        } else {
+            statusEl.className = 'status-msg error';
+            statusEl.textContent = data.message || 'Pairing failed.';
+        }
+    })
+    .catch(() => {
+        statusEl.className = 'status-msg error';
+        statusEl.textContent = 'Could not reach the server.';
+    });
 }
+
+
+document.querySelectorAll('#wireless-modal input').forEach(input => {
+    input.addEventListener('input', () => {
+        // Allow dots for IP, digits only otherwise
+        if (input.id === 'wp-ip') {
+            input.value = input.value.replace(/[^0-9.]/g, '');
+        } else {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
+    });
+});
 
 // Start polling
 checkConnection();

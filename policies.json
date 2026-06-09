@@ -204,6 +204,7 @@
     {
       "id": "1.14a",
       "title": "Ensure \"Use network-provided time\" is set to \"Enabled\" ",
+      "level": "2",
       "type": "Manual",
       "namespace": "global",
       "key": "auto_time",
@@ -214,6 +215,7 @@
     {
       "id": "1.14b",
       "title": "Ensure\"Use network-provided time zone\" is set to \"Enabled\" ",
+      "level": "2",
       "type": "Manual",
       "namespace": "global",
       "key": "auto_time_zone",
@@ -381,7 +383,7 @@
       ],
       "desired": null,
       "description": "Do not add any guest profiles on the device. Guest profiles allows users to create temporary profiles for guests or other individuals who may need to use the device without accessing the owner's personal data.",
-      "rationale": "Users and the guest profile can do most of the same things as the device’s owner, but each profile has its own storage space. As a result, guests could install malicious apps or carry out other activities that compromise overall device security. Therefore, adding any guest profiles on the device is not recommended."
+      "rationale": "Users and the guest profile can do most of the same things as the device's owner, but each profile has its own storage space. As a result, guests could install malicious apps or carry out other activities that compromise overall device security. Therefore, adding any guest profiles on the device is not recommended."
     },
     {
       "id": "1.25",
@@ -507,7 +509,7 @@
       ],
       "desired": null,
       "description": "Disable storing device information to your account.",
-      "rationale": "When the Device Information setting is enabled, contact lists, calendars, alarms, and applications are saved to provide a personalized experience. The Device Information setting saves this data and replicates the information on Google’s servers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+      "rationale": "When the Device Information setting is enabled, contact lists, calendars, alarms, and applications are saved to provide a personalized experience. The Device Information setting saves this data and replicates the information on Google's servers. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
     },
     {
       "id": "2.5",
@@ -543,7 +545,7 @@
       ],
       "desired": null,
       "description": "Disable storing YouTube Search History to a user's account.",
-      "rationale": "Turning on the YouTube Search History setting stores all YouTube searches to the user’s Google account. YouTube and Google search history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+      "rationale": "Turning on the YouTube Search History setting stores all YouTube searches to the user's Google account. YouTube and Google search history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
     },
     {
       "id": "2.7",
@@ -561,7 +563,7 @@
       ],
       "desired": null,
       "description": "Disable storing YouTube Watch History to a user account.",
-      "rationale": "Turning on the YouTube Watch History setting stores all YouTube watch history to the user’s Google account. YouTube and Google watch history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
+      "rationale": "Turning on the YouTube Watch History setting stores all YouTube watch history to the user's Google account. YouTube and Google watch history influences the recommendations seen on the YouTube homepage. It is recommended to disable this setting as it could be considered a privacy issue for the organization."
     },
     {
       "id": "2.8",
@@ -1273,7 +1275,7 @@
       "type": "Manual",
       "desired": "",
       "description": "Emergency Reset is a one-tap option that allows user protection by revoking everything an iOS device is sharing with all people and apps, including things like location information, home data, photo albums and more.\nEmergency Reset also allows users to remove all emergency contacts and reset their Apple ID and password so that no one can log into their account.",
-      "ratioanle": "Emergency Reset is designed for people who are experiencing or at risk of domestic abuse, but it’s also useful for anyone who has ever shared their location or data with partners in the pa  st. The tool is a centralized dashboard of controls meant to simplify resetting privacy permissions, revoking location access and auditing data sharing.\nMonitoring smartphones is a common tactic in domestic abuse situations because it takes advantage of everyday tools, such as iCloud or location sharing. By cutting off an abuser’s access to a device it is possible to mitigate the risks of being stalked or exposed.",
+      "ratioanle": "Emergency Reset is designed for people who are experiencing or at risk of domestic abuse, but it's also useful for anyone who has ever shared their location or data with partners in the pa  st. The tool is a centralized dashboard of controls meant to simplify resetting privacy permissions, revoking location access and auditing data sharing.\nMonitoring smartphones is a common tactic in domestic abuse situations because it takes advantage of everyday tools, such as iCloud or location sharing. By cutting off an abuser's access to a device it is possible to mitigate the risks of being stalked or exposed.",
       "steps": [
         "Tap \"Settings\".",
         "Tap \"Privacy & Security\".",

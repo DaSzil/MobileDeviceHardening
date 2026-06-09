@@ -6,12 +6,11 @@ from .android_handler import AndroidHandler
 # fi testate doar prin preluarea informatiilor redate de catre comanda "adb getprop"
 
 class HardeningProcess:
-    def __init__(self, policy):
-
+    def __init__(self, policy, serial=None):
         # Policy => Se va prelua dict din policies.json, dar doar partea cu "Android"
         # Pe viitor, trb implementat partea pt iOS, care nu va putea folosi adb
         self.policy = policy
-        self.handler = AndroidHandler()
+        self.handler = AndroidHandler(serial=serial)
 
     def audit_ios(self):
         print("\n[*] Commencing iOS Security Audit...")

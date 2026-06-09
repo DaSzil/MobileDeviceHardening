@@ -2,9 +2,8 @@ import subprocess
 
 
 class AndroidHandler:
-
-
-    def __init__(self):
+    def __init__(self, serial=None):
+        self.serial = serial
         self.supported = [
             "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.14a", "1.14b", "1.15",
             "1.17", "1.18", "1.19", "1.20", "1.21", "1.23", "1.24", "1.26", "1.27",
@@ -22,9 +21,15 @@ class AndroidHandler:
             # Transmite intreaga comanda ca un singur string catre adb, a.i
             # caracterele specifice sa fie interpretate corect de catre powershell,
             # in loc sa fie impartite in argumente separate
+
+            cmd = ["adb"]
+            if self.serial:
+                cmd += ["-s", self.serial]
+
+            cmd += ["shell"] + command.split()
             result = subprocess.run(
-                ["adb", "shell", command],
-                shell=True,
+                cmd,
+                shell=False,
                 capture_output=True,            # Preia si stdout, dar si stderr
                 text=True,                      # Transforma octetii in string automat
                 timeout=10,                     # Daca dupa 10s nu se pot prelua informatiile, comanda se va opri

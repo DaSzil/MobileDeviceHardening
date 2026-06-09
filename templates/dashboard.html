@@ -21,6 +21,9 @@
         <div id="device-tabs">
             <div class="no-devices-msg">No Devices Connected</div>
         </div>
+        <div class = "wireless-btn">
+            <button  onclick="openWirelessModal()">Wireless Pairing</button>
+        </div>
     </div>
 
 
@@ -116,6 +119,40 @@
             </table>
           </div>
 
+
+            <div id="wireless-modal" class="modal-overlay" style="display:none;">
+                <div class="modal-box" style="max-width:420px;">
+                    <h3>Wireless Pairing — Android</h3>
+                    <p class="modal-sub">Pair your Android 11+ device without a USB cable.</p>
+                    <div class="steps-hint">
+                        1. Go to <span>Settings => Developer Options => Wireless Debugging.</span><br>
+                        2. Tap <span>Pair device with pairing code.</span><br>
+                        3. Enter the IP, port, and <span>6-digit</span> code shown on your device.
+                    </div>
+                    <div class="field-group">
+                        <div class="ip-port-row">
+                            <div class="field-row">
+                                <label>IP Address: </label>
+                                <input type="text" id="wp-ip" placeholder="192.168.x.x">
+                            </div>
+                            <div class="field-row">
+                                <label>Pairing Port: </label>
+                                <input type="text" id="wp-port" placeholder="12345">
+                            </div>
+                        </div>
+                        <div class="field-row">
+                            <label>Pairing Code: </label>
+                            <input type="text" id="wp-code" placeholder="6-digit code" maxlength="6">
+                        </div>
+                    </div>
+                    <div class="status-msg" id="wp-status"></div>
+                    <div class="modal-buttons">
+                        <button onclick="closeWirelessModal()">Cancel</button>
+                        <button onclick="submitPairing()">Pair Device</button>
+                    </div>
+                </div>
+            </div>
+
           <div id="ios-profile-modal" class="modal-overlay" style="display:none;">
             <div class="modal-box" style="max-width: 520px;">
                 <h3>Build CIS Profile</h3>
@@ -124,13 +161,14 @@
                     and can be installed via Settings → General → VPN & Device Management.
                 </p>
 
-                <div id="profile-rule-list" style="
-                    max-height: 340px;
-                    overflow-y: auto;
-                    margin-bottom: 16px;
-                    border: 1px solid #3d4460;
-                    border-radius: 6px;
-                    padding: 8px 0;
+                <div id="profile-rule-list"
+                     style="
+                     max-height: 340px;
+                     overflow-y: auto;
+                     margin-bottom: 16px;
+                     border: 1px solid #3d4460;
+                     border-radius: 6px;
+                     padding: 8px 0;
                 "></div>
 
                 <div style="display:flex; justify-content:space-between; align-items:center;">

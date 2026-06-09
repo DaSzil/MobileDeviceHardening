@@ -79,12 +79,6 @@ def detect_all_devices():
                     "platform": "android",
                     "name": name
                 })
-
-                devices.append({
-                    "serial": serial,
-                    "platform": "android",
-                    "name": name
-                })
     except Exception:
         pass
 
@@ -119,6 +113,8 @@ def detect_all_devices():
     return devices
 
 
+
+
 def detect_platform():
     """
     Detecteaza ce tip de dispozitiv este conectat.
@@ -129,6 +125,9 @@ def detect_platform():
     if not devices:
         return None
     return devices[0]["platform"]
+
+
+
 
 def pair_ios_device():
     """
@@ -183,16 +182,25 @@ def pair_ios_device():
     return False
 
 
+
+
 def check_device_connected():
     return len(detect_all_devices()) > 0
 
 
-def get_device_info(platform):
+
+
+def get_device_info(platform, serial=None):
     if platform == "android":
         def prop(key):
             try:
+                cmd = ["adb"]
+                if serial:
+                    cmd += ["-s", serial]
+
+                cmd += ["shell", "getprop", key]
                 result = subprocess.run(
-                    ["adb", "shell", "getprop", key],
+                    cmd,
                     capture_output=True,
                     text=True,
                     timeout=5
@@ -242,6 +250,37 @@ def get_device_info(platform):
     return {}
 
 
+
+
+def pair_android_wireless(ip, pairing_port, pairing_code):
+    result = subprocess.run(
+        ["adb", "pair", f"{ip}:{pairing_port}", pairing_code],
+        capture_output=True, text=True, timeout=15
+    )
+    if "Successfully paired" not in result.stdout:
+        return False, None, result.stdout + result.stderr
+
+    for port in ["5555", pairing_port]:
+        connect = subprocess.run(
+            ["adb", "connect", f"{ip}:{port}"],
+            capture_output=True, text=True, timeout=10
+        )
+        if "connected" in connect.stdout.lower():
+            devices = subprocess.run(
+                ["adb", "devices"],
+                capture_output=True, text=True, timeout=5
+            )
+            for line in devices.stdout.splitlines():
+                if ip in line and "device" in line:
+                    serial = line.split()[0]
+                    return True, serial, connect.stdout
+
+    return False, None, "Paired but could not connect."
+
+
+
+
+
 def run_audit_task():
     """
     Functia principala a auditului, rulata intr-un thread secundar.
@@ -255,7 +294,12 @@ def run_audit_task():
 
     try:
         # Detectam platforma
-        platform = detect_platform()
+        serial = audit_state.get("serial")
+        platform = None
+        for dev in detect_all_devices():
+            if dev["serial"] == serial:
+                platform = dev["platform"]
+                break
 
         if platform is None:
             with audit_lock:
@@ -263,15 +307,15 @@ def run_audit_task():
                 audit_state["results"] = []
             return
 
-        device = get_device_info(platform)
+        device = get_device_info(platform, serial=audit_state.get("serial"))
 
         with open("policies.json") as f:
             policies = json.load(f)
 
-        engine = HardeningProcess(policies)
+        hardening = HardeningProcess(policies, serial=audit_state.get("serial"))
 
         if platform == "android":
-            results = engine.audit_android()
+            results = hardening.audit_android()
 
         elif platform == "ios":
             paired = pair_ios_device()
@@ -279,7 +323,7 @@ def run_audit_task():
                 with audit_lock:
                     audit_state["status"] = "error"
                 return
-            results = engine.audit_ios()
+            results = hardening.audit_ios()
 
 
         # Calcularea scorului
@@ -307,6 +351,11 @@ def run_audit_task():
                                      }]
 
 
+
+
+
+
+# Routing for Flask
 @app.route("/")
 def index():
     return render_template("dashboard.html")
@@ -314,6 +363,9 @@ def index():
 
 @app.route("/api/run", methods=["POST"])
 def run_audit():
+    data = request.json or {}
+    with audit_lock:
+        audit_state["serial"] = data.get("serial")
     if audit_state["status"] == "running":
         return jsonify({"message": "Audit already running"}), 409
     thread = threading.Thread(target=run_audit_task)
@@ -351,13 +403,14 @@ def ping_device():
 
 @app.route('/api/remediate', methods=['POST'])
 def remediate():
-    data    = request.json
+    data = request.json
     rule_id = data.get('id')
+    serial = data.get('serial')
 
     if not rule_id:
         return jsonify({"status": "error", "message": "Missing rule id"}), 400
 
-    handler = AndroidHandler()
+    handler = AndroidHandler(serial=serial)
     success = handler.modify_values(rule_id)
 
     if success:
@@ -391,6 +444,21 @@ def generate_ios_profile():
         )
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/api/android/wireless_pair", methods=["POST"])
+def android_wireless_pair():
+    data = request.json or {}
+    ip = data.get("ip")
+    pairing_port = data.get("pairing_port")
+    pairing_code = data.get("pairing_code")
+
+    if not all([ip, pairing_port, pairing_code]):
+        return jsonify({"status": "error", "message": "Missing fields"}), 400
+
+    success, serial, output = pair_android_wireless(ip, pairing_port, pairing_code)
+    if success:
+        return jsonify({"status": "success", "serial": serial})
+    return jsonify({"status": "error", "message": output}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -157,6 +157,14 @@ button {
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+.wireless-btn{
+ padding: 6px 16px;
+ text-align: center;
+ justify-self: flex-end;
+}
+
+
+
 #ios-profile-btn {
   display:none
 }
@@ -524,7 +532,7 @@ thead th:nth-child(6) { width: 70px; }
 }
 
 .modal-box {
-  background: #262a3a;
+  background: #2d3142;
   padding: 28px 32px;
   border-radius: 12px;
   max-width: 380px;
@@ -648,6 +656,64 @@ thead th:nth-child(6) { width: 70px; }
 .tooltip-box ol li {
   margin-bottom: 3px;
 }
+
+/*Wireless Connection*/
+.modal-sub { font-size: 0.78rem; color: #7a7f94; margin: 0 0 20px; line-height: 1.6; }
+
+.steps-hint {
+  background: #1e2130;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.75rem;
+  color: #7a7f94;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.steps-hint span { color: #e0e2e8; }
+
+.field-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+.field-row {
+ display: flex;
+ flex-direction: column;
+ gap: 4px;
+}
+
+.field-row label {
+  font-size: 0.72rem;
+  color: #7a7f94;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field-row input {
+  background: #1e2130;
+  border: 1px solid #3d4460;
+  border-radius: 6px;
+  color: #e0e2e8;
+  font-family: Montserrat, sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field-row input:focus { border-color: #7c8cf8; }
+
+
+.ip-port-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.status-msg { font-size: 0.78rem; margin-bottom: 14px; min-height: 18px; text-align: center; }
+.status-msg.error   { color: #ff6b6b; }
+.status-msg.success { color: #69db7c; }
+.status-msg.loading { color: #7a7f94; }
 
 
 

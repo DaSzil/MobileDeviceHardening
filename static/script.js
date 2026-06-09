@@ -46,7 +46,7 @@ async function runBulkRemediation() {
         await fetch('/api/remediate', {
             method: 'POST',
             headers: {'Content-Type' : 'application/json'},
-            body: JSON.stringify({ id: ruleId })
+            body: JSON.stringify({ id: ruleId, serial: activeDeviceSerial })
         });
         console.log(`Succesfully modified rule ${ruleId}`);
     } catch (err){
@@ -694,6 +694,55 @@ function updateSelection(id, isChecked) {
     if (rule) {
         rule.selected = isChecked;
     }
+}
+
+function openWirelessModal() {
+  document.getElementById('wireless-modal').style.display = 'flex';
+}
+
+function closeWirelessModal() {
+  document.getElementById('wireless-modal').style.display = 'none';
+  document.getElementById('wp-status').textContent = '';
+  document.getElementById('wp-ip').value   = '';
+  document.getElementById('wp-port').value = '';
+  document.getElementById('wp-code').value = '';
+}
+
+function submitPairing() {
+  const ip   = document.getElementById('wp-ip').value.trim();
+  const port = document.getElementById('wp-port').value.trim();
+  const code = document.getElementById('wp-code').value.trim();
+  const statusEl = document.getElementById('wp-status');
+
+  if (!ip || !port || !code) {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Please fill in all fields.';
+    return;
+  }
+
+  statusEl.className = 'status-msg loading';
+  statusEl.textContent = 'Pairing...';
+
+  fetch('/api/android/wireless_pair', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ip, pairing_port: port, pairing_code: code })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'success') {
+        statusEl.className = 'status-msg success';
+        statusEl.textContent = 'Paired! Device will appear in the sidebar.';
+        setTimeout(closeWirelessModal, 2000);
+    } else {
+        statusEl.className = 'status-msg error';
+        statusEl.textContent = data.message || 'Pairing failed.';
+    }
+  })
+  .catch(() => {
+    statusEl.className = 'status-msg error';
+    statusEl.textContent = 'Could not reach the server.';
+  });
 }
 
 // Start polling

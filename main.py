@@ -214,12 +214,12 @@ def get_device_info(platform, serial=None):
         model = marketname if marketname and marketname != "Unknown" else prop("ro.product.model")
 
         return {
-            "platform":     "Android",
+            "platform": "Android",
             "manufacturer": prop("ro.product.manufacturer"),
-            "model":        model,
-            "android":      prop("ro.build.version.release"),
-            "patch":        prop("ro.build.version.security_patch"),
-            "serial":       prop("ro.serialno"),
+            "model": model,
+            "android": prop("ro.build.version.release"),
+            "patch": prop("ro.build.version.security_patch"),
+            "serial": prop("ro.serialno"),
         }
 
     elif platform == "ios":
@@ -290,10 +290,10 @@ def run_audit_task():
     Functia principala a auditului, rulata intr-un thread secundar.
     """
     with audit_lock:
-        audit_state["status"]   = "running"
-        audit_state["results"]  = []
-        audit_state["device"]   = {}
-        audit_state["score"]    = None
+        audit_state["status"] = "running"
+        audit_state["results"] = []
+        audit_state["device"] = {}
+        audit_state["score"] = None
         audit_state["platform"] = None
 
     try:
@@ -333,8 +333,13 @@ def run_audit_task():
         # Calcularea scorului
         excluded    = ["MANUAL", "N/A"]
         automatable = [r for r in results if r["status"] not in excluded]
-        passed      = [r for r in automatable if r["status"] == "PASS"]
-        score       = round((len(passed) / len(automatable)) * 100) if automatable else 0
+
+        def weight(r):
+            return 2 if str(r.get("level")) == "1" else 1
+
+        total_weight = sum(weight(r) for r in automatable)
+        passed_weight = sum(weight(r) for r in automatable if r["status"] == "PASS")
+        score = round((passed_weight / total_weight) * 100) if total_weight > 0 else 0
 
         with audit_lock:
             audit_state["status"]   = "done"
@@ -354,12 +359,7 @@ def run_audit_task():
                                         "found": str(e)
                                      }]
 
-
-
-
-
 # Preluare IP curent pentru certificat https
-
 def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -376,9 +376,6 @@ def get_local_ip():
 def index():
     return render_template("dashboard.html")
 
-
-
-@app.route("/api/run", methods=["POST"])
 def run_audit():
     data = request.json or {}
     with audit_lock:

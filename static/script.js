@@ -369,7 +369,7 @@ function renderResults(results) {
 
         // Attach tooltip to status cell for MANUAL rows
         if (r.status === 'MANUAL' && r.steps && r.steps.length > 0) {
-            const statusCell = tr.querySelectorAll('td')[3]; // 4th td = Status column
+            const statusCell = tr.querySelectorAll('td')[4];
             statusCell.style.cursor = 'help';
             statusCell.style.textDecoration = 'underline dotted';
 

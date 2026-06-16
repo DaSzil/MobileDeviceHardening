@@ -1,6 +1,5 @@
 from .android_handler import AndroidHandler
 
-
 # Procesul care va rula pentru testarea politciilor mentionate in fisierul policies.json.
 # Exista verificare care trebuiesc verificate printr-o ramura separata, sau unele care vor
 # fi testate doar prin preluarea informatiilor redate de catre comanda "adb getprop"
@@ -197,7 +196,6 @@ class HardeningProcess:
                         )
 
                         if not key_exists:
-                            # Key genuinely does not exist on this device/OEM
                             status = "N/A"
                             current = "Key absent on device."
                             print(f" [N/A]  {rule['id']}: {rule['title']} - Key not present on this device")

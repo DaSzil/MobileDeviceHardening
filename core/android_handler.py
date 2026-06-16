@@ -110,7 +110,7 @@ class AndroidHandler:
             self.execute("settings put secure location_mode 3")
 
 
-        # Namespace : System
+        # Namespace: System
         elif rule_id == "1.8":
             self.execute("settings put system show_password 0")
         elif rule_id == "1.19":
@@ -119,7 +119,7 @@ class AndroidHandler:
             self.execute("settings put system screen_off_timeout 120000")
 
 
-        # Namespace : Other
+        # Namespace: Other
         elif rule_id == "1.7":
             self.execute("svc wifi disable")
 

@@ -138,12 +138,12 @@
                               <input type="text" id="wp-ip" placeholder="192.168.x.x" inputmode="numeric">
                           </div>
                           <div class="field-row">
-                              <label>Pairing Port</label>
-                              <input type="text" id="wp-port" placeholder="12345" inputmode="numeric" maxlength="5">
-                          </div>
-                          <div class="field-row">
                               <label>Connect Port</label>
                               <input type="text" id="wp-connect-port" placeholder="45678" inputmode="numeric" maxlength="5">
+                          </div>
+                          <div class="field-row">
+                              <label>Pairing Port</label>
+                              <input type="text" id="wp-port" placeholder="12345" inputmode="numeric" maxlength="5">
                           </div>
                           <div class="field-row">
                               <label>Pairing Code</label>
@@ -191,6 +191,7 @@
                 </div>
             </div>
         </div>
+
         <div id="custom-modal" class="modal-overlay" style="display:none;">
             <div class="modal-box">
                 <h3>System Confirmation</h3>
@@ -200,14 +201,27 @@
                     <button onclick="closeModal()" class="btn-cancel">Cancel</button>
                 </div>
             </div>
-          </div>
+        </div>
 
-          <div id="loading-overlay">
-              <div class="loading-box">
-                  <div class="spinner"></div>
-                  <p id="loading-text">Loading...</p>
-              </div>
-          </div>
+        <div id="unpair-modal" class="modal-overlay" style="display:none;">
+            <div class="modal-box">
+            <h3>Unpair Device</h3>
+            <p id="unpair-modal-message"></p>
+                <div class="modal-buttons">
+                    <button id="unpair-confirm-btn" class="btn-confirm">Unpair</button>
+                    <button onclick="closeUnpairModal()" class="btn-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading-overlay">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <p id="loading-text">Loading...</p>
+            </div>
+        </div>
+
+
 
           <div id="toast-container"></div>
         </div>

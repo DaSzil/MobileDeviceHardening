@@ -63,64 +63,99 @@ class AndroidHandler:
             return False
 
         print(f"[*] Executing Modifications for Rule {rule_id}")
+
+        writes = []
+
         # Namespace : Global
         if rule_id == "1.9":
             self.execute("settings put global development_settings_enabled 0")
+            writes.append(("global", "development_settings_enabled", "0"))
         elif rule_id == "1.14a":
             self.execute("settings put global auto_time 1")
+            writes.append(("global", "auto_time", "1"))
         elif rule_id == "1.14b":
             self.execute("settings put global auto_time_zone 1")
+            writes.append(("global", "auto_time_zone", "1"))
         elif rule_id == "1.21":
             self.execute("settings put global network_recommendations_enabled 0")
+            writes.append(("global", "network_recommendations_enabled", "0"))
         elif rule_id == "1.23":
             self.execute("settings put global add_users_when_locked 0")
+            writes.append(("global", "add_users_when_locked", "0"))
         elif rule_id == "1.24":
             self.execute("settings put global guest_user_enabled 0")
+            writes.append(("global", "guest_user_enabled", "0"))
         elif rule_id == "1.26":
             self.execute("svc bluetooth disable")
         elif rule_id == "2.10":
             self.execute("settings put global wifi_scan_always_enabled 0")
+            writes.append(("global", "wifi_scan_always_enabled", "0"))
         elif rule_id == "2.11":
             self.execute("settings put global ble_scan_always_enabled 0")
+            writes.append(("global", "ble_scan_always_enabled", "0"))
 
         # Namespace: Secure
         elif rule_id == "1.3":
             self.execute("settings put secure lock_pattern_visible_pattern 0")
+            writes.append(("secure", "lock_pattern_visible_pattern", "0"))
         elif rule_id == "1.4":
             self.execute("settings put secure lock_screen_lock_after_timeout 0")
+            writes.append(("secure", "lock_screen_lock_after_timeout", "0"))
         elif rule_id == "1.5":
             self.execute("settings put secure power_button_instantly_locks 1")
+            writes.append(("secure", "power_button_instantly_locks", "1"))
         elif rule_id == "1.6":
             self.execute("settings put secure lock_screen_owner_info_enabled 1")
+            writes.append(("secure", "lock_screen_owner_info_enabled", "1"))
         elif rule_id == "1.15":
             self.execute("settings put secure location_mode 3")
+            writes.append(("secure", "location_mode", "3"))
         elif rule_id == "1.17":
             # App protection requires writing to multiple keys
             self.execute("settings put secure appprotection_permission_function_agree_or_disagree 1")
             self.execute("settings put secure appprotection_permission_function_usage 1")
+            writes.append(("secure", "appprotection_permission_function_agree_or_disagree", "1"))
+            writes.append(("secure", "appprotection_permission_function_usage", "1"))
         elif rule_id == "1.18":
             self.execute("settings put secure upload_apk_enable 1")
+            writes.append(("secure", "upload_apk_enable", "1"))
         elif rule_id == "1.27":
             # Forces the default AOSP/Google keyboard back as the primary input method
-            self.execute(
-                "settings put secure enabled_input_methods com.google.android.googlequicksearchbox/com.google.android.voicesearch.ime.VoiceInputMethodService:com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME")
+            forced_ime = (
+                "com.google.android.googlequicksearchbox/com.google.android.voicesearch.ime.VoiceInputMethodService:"
+                "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME")
+            self.execute(f"settings put secure enabled_input_methods {forced_ime}")
+            writes.append(("secure", "enabled_input_methods", forced_ime))
         elif rule_id == "2.1":
             self.execute("settings put secure lock_screen_show_notifications 0")
+            writes.append(("secure", "lock_screen_show_notifications", "0"))
         elif rule_id == "3.2":
             self.execute("settings put secure location_mode 3")
+            writes.append(("secure", "location_mode", "3"))
 
 
         # Namespace: System
         elif rule_id == "1.8":
             self.execute("settings put system show_password 0")
+            writes.append(("system", "show_password", "0"))
         elif rule_id == "1.19":
             self.execute("settings put system lock_to_app_exit_locked 1")
+            writes.append(("system", "lock_to_app_exit_locked", "1"))
         elif rule_id == "1.20":
             self.execute("settings put system screen_off_timeout 120000")
+            writes.append(("system", "screen_off_timeout", "120000"))
 
 
         # Namespace: Other
         elif rule_id == "1.7":
             self.execute("svc wifi disable")
+
+        for namespace, key, desired in writes:
+            current = self.execute(f"settings get {namespace} {key}").strip()
+            if current != desired:
+                print(f"[!] Verification failed for {rule_id}: expected '{desired}', got '{current}'")
+                return False
+
+
 
         return True

@@ -147,7 +147,7 @@ class HardeningProcess:
                 if is_compliant:
                     current = f"OK : ({len(all_installed_kb)} trusted KB)"
                 else:
-                    current = f"ERR : {', '.join(found_untrusted_kb).join(" is untrusted")}"
+                    current = f"ERR : {', '.join(found_untrusted_kb)} is untrusted"
 
             # Teste generice
             # Daca nu exista cazuri specifice de mentionat, restul testelor vor fi regasite aici,

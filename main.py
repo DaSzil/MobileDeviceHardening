@@ -7,6 +7,8 @@ import os
 import traceback
 import socket
 from core.profile_gen import generate_cis_profile, get_all_profile_rules
+from core.android_handler import AndroidHandler
+from core.process import HardeningProcess
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "profiles")
@@ -18,9 +20,6 @@ IDEVICEINFO_PATH = os.path.join(EXE_FOLDER, "ideviceinfo.exe")
 IDEVICEPAIR_PATH = os.path.join(EXE_FOLDER, "idevicepair.exe")
 IDEVICE_ID_PATH = os.path.join(EXE_FOLDER, "idevice_id.exe")
 IDEVICENAME_PATH = os.path.join(EXE_FOLDER, "idevicename.exe")
-
-from core.android_handler import AndroidHandler
-from core.process import HardeningProcess
 
 app = Flask(__name__)
 
@@ -62,18 +61,26 @@ def detect_all_devices():
             if len(parts) >= 2 and parts[1] == "device":
                 serial = parts[0]
 
-                name_result = subprocess.run(
-                    ["adb", "-s", serial, "shell", "getprop", "ro.product.marketname"],
-                    capture_output=True, text=True, timeout=5
-                )
-                name = name_result.stdout.strip()
+                if "_adb-tls-connect._tcp" in serial:
+                    continue
 
-                if not name:
+                try:
                     name_result = subprocess.run(
-                        ["adb", "-s", serial, "shell", "getprop", "ro.product.model"],
+                        ["adb", "-s", serial, "shell", "getprop", "ro.product.marketname"],
                         capture_output=True, text=True, timeout=5
                     )
-                    name = name_result.stdout.strip() or serial
+                    name = name_result.stdout.strip()
+
+                    if not name:
+                        name_result = subprocess.run(
+                            ["adb", "-s", serial, "shell", "getprop", "ro.product.model"],
+                            capture_output=True, text=True, timeout=5
+                        )
+                        name = name_result.stdout.strip() or serial
+
+                except Exception as e:
+                    name = serial
+
 
                 devices.append({
                     "serial": serial,
@@ -328,7 +335,16 @@ def run_audit_task():
                     audit_state["status"] = "error"
                 return
             results = hardening.audit_ios()
-
+        else:
+            print(f"[ERR] Could not determine platform for serial: {serial}")
+            with audit_lock:
+                audit_state["status"] = "error"
+                audit_state["results"] = [{
+                    "id": "ERR",
+                    "status": "FAIL",
+                    "found": "Device disconnected or platform could not be determined before audit could start."
+                }]
+            return
 
         # Calcularea scorului
         excluded    = ["MANUAL", "N/A"]
@@ -376,6 +392,7 @@ def get_local_ip():
 def index():
     return render_template("dashboard.html")
 
+@app.route("/api/run", methods=["POST"])
 def run_audit():
     data = request.json or {}
     with audit_lock:
@@ -511,6 +528,50 @@ def push_ios_profile():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+
+@app.route("/api/unpair/android", methods=["POST"])
+def unpair_android():
+    data   = request.json or {}
+    serial = data.get("serial", "").strip()
+    if not serial:
+        return jsonify({"status": "error", "message": "Serial required"}), 400
+    try:
+        result = subprocess.run(
+            ["adb", "disconnect", serial],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        return jsonify({"status": "success", "message": result.stdout.strip()})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/unpair/ios", methods=["POST"])
+def unpair_ios():
+    data = request.json or {}
+    udid = data.get("serial", "").strip()
+    if not udid:
+        return jsonify({"status": "error", "message": "UDID required"}), 400
+    try:
+        result = subprocess.run(
+            [IDEVICEPAIR_PATH, "unpair"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            encoding='utf-8',
+            errors='replace'
+        )
+        if result.returncode == 0:
+            return jsonify({"status": "success", "message": "Device unpaired."})
+        else:
+            return jsonify({"status": "error", "message": result.stdout + result.stderr}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)

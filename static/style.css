@@ -594,6 +594,23 @@ thead th:nth-child(7) { width: 70px; }
   font-size: 0.8rem;
 }
 
+.tab-unpair-btn {
+    font-size: 0.75rem;
+    color: #7a7f94;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-left: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.tab-unpair-btn:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
 
 /* Loading */
 

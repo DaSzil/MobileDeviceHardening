@@ -3,7 +3,8 @@ let activeFilter = 'ALL';
 let pollInterval = null;
 let deviceRegistry = new Map();
 let activeDeviceSerial = null;
-
+let unpairTarget = null;
+let unpairModalOpen = false;
 
 // Loading
 function showLoading() {
@@ -413,16 +414,17 @@ function renderResults(results) {
 
 
 function checkConnection() {
+    if (unpairModalOpen) return;
     if (document.getElementById('status').textContent === 'Running audit...') return;
 
     fetch('/api/ping_device')
         .then(r => r.json())
         .then(data => {
-            const light      = document.getElementById('conn-light');
-            const text       = document.getElementById('conn-text');
-            const runBtn     = document.getElementById('run-btn');
-            const fixBtn     = document.getElementById('fix-btn');
-            const iosBtn     = document.getElementById('ios-profile-btn');
+            const light = document.getElementById('conn-light');
+            const text = document.getElementById('conn-text');
+            const runBtn = document.getElementById('run-btn');
+            const fixBtn = document.getElementById('fix-btn');
+            const iosBtn = document.getElementById('ios-profile-btn');
 
             const liveDevices = data.devices || [];
             const connectedSerials = new Set();
@@ -508,11 +510,34 @@ function renderDeviceTabs() {
             statusText  = `Score: ${dev.score}%`;
         }
 
-        tab.innerHTML = `
+       const safeName = (dev.name || serial).replace(/'/g, '&#39;');
+
+tab.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div style="flex:1; min-width:0;">
             <div class="tab-platform">${dev.platform || 'Unknown OS'}</div>
             <div class="tab-serial">${dev.name || 'Unknown Device'}</div>
             <div class="tab-status ${statusClass}">${statusText}</div>
-        `;
+        </div>
+        <span class="tab-unpair-btn"
+              data-serial="${serial}"
+              data-platform="${dev.platform}"
+              data-name="${safeName}"
+              title="Unpair device">
+            ✕
+        </span>
+    </div>
+`;
+
+// Attach click via addEventListener — no inline onclick
+const unpairBtn = tab.querySelector('.tab-unpair-btn');
+unpairBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const s = unpairBtn.getAttribute('data-serial');
+    const p = unpairBtn.getAttribute('data-platform');
+    const n = unpairBtn.getAttribute('data-name');
+    openUnpairModal(s, p, n);
+});
 
         tab.addEventListener('click', () => {
             activeDeviceSerial = serial;
@@ -765,6 +790,64 @@ function submitPairing() {
         statusEl.className = 'status-msg error';
         statusEl.textContent = 'Could not reach the server.';
     });
+}
+
+
+function openUnpairModal(serial, platform, name) {
+    unpairModalOpen = true;
+    unpairTarget = { serial: serial, platform: platform };
+
+    document.getElementById('unpair-modal-message').textContent =
+        `Are you sure you want to unpair "${name}"? This will disconnect the device.`;
+
+    const btn = document.getElementById('unpair-confirm-btn');
+    btn.onclick = null;
+    btn.onclick = confirmUnpair;
+
+    document.getElementById('unpair-modal').style.display = 'flex';
+}
+
+function closeUnpairModal() {
+    unpairModalOpen = false;
+    unpairTarget = null;
+    document.getElementById('unpair-modal').style.display = 'none';
+}
+
+async function confirmUnpair() {
+    if (!unpairTarget) return;
+
+    const target = { ...unpairTarget };
+    closeUnpairModal();
+
+    const endpoint = target.platform === 'ios'
+        ? '/api/unpair/ios'
+        : '/api/unpair/android';
+
+    try {
+        const res  = await fetch(endpoint, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ serial: target.serial })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            showToast('Device unpaired successfully.');
+            if (activeDeviceSerial === target.serial) {
+                activeDeviceSerial = null;
+                document.getElementById('device-info').style.display    = 'none';
+                document.getElementById('score-section').style.display   = 'none';
+                document.getElementById('results-section').style.display = 'none';
+                document.getElementById('status').textContent = 'Idle. Please connect a device and run an audit.';
+            }
+            deviceRegistry.delete(target.serial);
+            renderDeviceTabs();
+        } else {
+            showToast(`Unpair failed: ${data.message}`);
+        }
+    } catch (err) {
+        showToast('Error communicating with server.');
+    }
 }
 
 

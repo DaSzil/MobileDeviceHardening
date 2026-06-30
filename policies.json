@@ -214,7 +214,7 @@
     },
     {
       "id": "1.14b",
-      "title": "Ensure\"Use network-provided time zone\" is set to \"Enabled\" ",
+      "title": "Ensure \"Use network-provided time zone\" is set to \"Enabled\" ",
       "level": "2",
       "type": "Manual",
       "namespace": "global",

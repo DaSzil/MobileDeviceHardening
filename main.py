@@ -46,7 +46,7 @@ def detect_all_devices():
     ]
     """
     devices = []
-
+    seen_hw_ids = set()
     # Android
     try:
         result = subprocess.run(
@@ -63,6 +63,18 @@ def detect_all_devices():
 
                 if "_adb-tls-connect._tcp" in serial:
                     continue
+                try:
+                    hw_id_result = subprocess.run(
+                        ["adb", "-s", serial, "shell", "getprop", "ro.serialno"],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    hw_id = hw_id_result.stdout.strip() or serial
+                except Exception:
+                    hw_id = serial
+
+                if hw_id in seen_hw_ids:
+                    continue
+                seen_hw_ids.add(hw_id)
 
                 try:
                     name_result = subprocess.run(

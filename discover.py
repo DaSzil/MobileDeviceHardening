@@ -18,7 +18,7 @@ class StatusDiscovery:
         return snapshot
 
     def execute_session(self):
-        print("\n=== ANDROID STATUS VERIFICATION ===")
+        print("\n ANDROID STATUS VERIFICATION")
 
         # Capturing modified variables
         print("[*] Recording current settings. Please wait...")
@@ -26,8 +26,8 @@ class StatusDiscovery:
 
         # Testare
         print("\n[!] Discovering changes:")
-        print("    1. Locate any security or privacy setting.")
-        print("    2. Change the setting to a new value.")
+        print("1. Locate any security or privacy setting.")
+        print("2. Change the setting to a new value.")
         input("\n[*] Press Enter when finished.")
 
         # Capture after changing values
@@ -47,9 +47,9 @@ class StatusDiscovery:
                 if v_before != v_after:
                     found_diffs += 1
                     print(f"\n[{found_diffs}] NAMESPACE: {ns.upper()}")
-                    print(f"    Key:           {key}")
-                    print(f"    Transition:    {v_before} -> {v_after}")
-                    print(f"    Policy Export: \"namespace\": \"{ns}\", \"key\": \"{key}\"")
+                    print(f"Key: {key}")
+                    print(f"Transition: {v_before} -> {v_after}")
+                    print(f"Policy Export: \"namespace\": \"{ns}\", \"key\": \"{key}\"")
 
         if found_diffs == 0:
             print("[-] No variance detected. Check dumpsys.")

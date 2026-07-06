@@ -7,11 +7,11 @@ def _new_uuid():
 
 
 PASSCODE_RULE_MAP = {
-    "2.4.1": ("allowSimple", False), # No simple passcodes
-    "2.4.3": ("minLength", 6), # Minimum length 6
-    "2.4.4": ("maxInactivity", 2), # Auto-lock after 2 minutes
-    "2.4.5": ("maxGracePeriod", 0), # Require passcode immediately
-    "2.4.6": ("maxFailedAttempts", 6), # Wipe after 6 failed attempts
+    "2.4.1": ("allowSimple", False), # Fara parole simple
+    "2.4.3": ("minLength", 6), # Lungime minima de 6
+    "2.4.4": ("maxInactivity", 2), # Blocare automata dupa 2 minute
+    "2.4.5": ("maxGracePeriod", 0), # Se cere parola instant dupa inchederea ecranului
+    "2.4.6": ("maxFailedAttempts", 6), # Stergerea informatiilor dupa 6 incercari esuate
 }
 
 INST_PASSCODE_RULE_MAP = {
@@ -24,72 +24,72 @@ INST_PASSCODE_RULE_MAP = {
 }
 
 RESTRICTION_RULE_MAP = {
-    "2.2.1.1": ("allowAssistantWhileLocked", False), # Siri on lock screen
-    "2.2.1.2": ("allowManagedAppsCloudSync", False), # iCloud sync for managed apps
-    "2.2.1.3": ("forceEncryptedBackup", True), # Encrypted backups
-    "2.2.1.5": ("allowUntrustedTLSPrompt", False), # Untrusted TLS
-    "2.2.1.7": ("allowOpenFromManagedToUnmanaged", False), # Managed to unmanaged docs
-    "2.2.1.8": ("allowOpenFromUnmanagedToManaged", False), # Unmanaged to managed docs
-    "2.2.1.9": ("airdropUnmanaged", True), # AirDrop as unmanaged
-    "2.2.1.10": ("allowActivityContinuation", False), # Handoff
-    "2.2.1.12": ("forceWatchWristDetection", True), # Apple Watch wrist detection
-    "2.2.1.13": ("allowControlCenter", False), # Control Center on lock screen
-    "2.2.1.14": ("allowNotificationCenter", False), # Notification Center on lock screen
-    "2.2.2.1": ("safariAllowFraudWarning", True), # Safari fraud warning
-    "2.2.2.2": ("safariCookiePolicy", 2), # Safari cookies from current site only
-    "2.9.1": ("allowIntelligenceExtensions", False), # External AI extensions
-    "2.9.2": ("allowIntelligenceNotesSummarization", False), # Notes summarization
-    "2.9.3": ("allowIntelligenceMailSummarization", False), # Mail summarization
-    "2.9.4": ("allowIntelligenceWritingTools", False), # Writing Tools
+    "2.2.1.1": ("allowAssistantWhileLocked", False), # Siri pe lock screen
+    "2.2.1.2": ("allowManagedAppsCloudSync", False), # Sync iCloud pentru aplicatile utilizate
+    "2.2.1.3": ("forceEncryptedBackup", True), # Backup-uri criptate
+    "2.2.1.5": ("allowUntrustedTLSPrompt", False), # Neacceptare TLS
+    "2.2.1.7": ("allowOpenFromManagedToUnmanaged", False), #Posibilitatea de a scrie valori din aplicatii securizate in cele nesecurizate
+    "2.2.1.8": ("allowOpenFromUnmanagedToManaged", False), #Posibilitatea de a scrie valori din aplicatii nesecurizate in cele securizate
+    "2.2.1.9": ("airdropUnmanaged", True), # Setare AirDrop ca nesecurizat
+    "2.2.1.10": ("allowActivityContinuation", False), # Continuare utilizare aplicatie pe alt dispozitiv Apple
+    "2.2.1.12": ("forceWatchWristDetection", True), # Detectie pe incheietura pt Apple Watch
+    "2.2.1.13": ("allowControlCenter", False), # Utilizare Control Center pe lock screen
+    "2.2.1.14": ("allowNotificationCenter", False), # Utilizare Notification Center pe lock screen
+    "2.2.2.1": ("safariAllowFraudWarning", True), # Avertizare Safari de frauda
+    "2.2.2.2": ("safariCookiePolicy", 2), # Cookie-uri Safari doar pt site-ul curent
+    "2.9.1": ("allowIntelligenceExtensions", False), # Extensii Externe AI
+    "2.9.2": ("allowIntelligenceNotesSummarization", False), # Rezumat Notes
+    "2.9.3": ("allowIntelligenceMailSummarization", False), # Rezumat Mail
+    "2.9.4": ("allowIntelligenceWritingTools", False), # Instrumente de Scriere
 }
 
 INST_RESTRICTION_RULE_MAP = {
     # Doar pentru device-uri din institutii
-    "3.1.1": ("PayloadRemovalDisallowed", True), # Prevent profile removal
-    "3.2.1.2":  ("allowAssistantWhileLocked", False), # Siri on lock screen
-    "3.2.1.3":  ("allowCloudBackup", False), # iCloud backup
-    "3.2.1.4":  ("allowCloudDocumentSync", False), # iCloud documents & data
-    "3.2.1.5":  ("allowCloudKeychainSync", False), # iCloud Keychain
-    "3.2.1.6":  ("allowManagedAppsCloudSync", False), # Managed apps iCloud sync
-    "3.2.1.7":  ("allowUSBDriveFileSystemAccess", False), # USB drive in Files app
-    "3.2.1.8":  ("allowNetworkDriveFileSystemAccess", False), # Network drive in Files app
-    "3.2.1.9":  ("forceEncryptedBackup", True), # Force encrypted backups
-    "3.2.1.11": ("allowEraseContentAndSettings", False), # Erase All Content and Settings
-    "3.2.1.12": ("allowUntrustedTLSPrompt", False), # Untrusted TLS
-    "3.2.1.14": ("allowProfileInstallation", False), # Installing configuration profiles
-    "3.2.1.15": ("allowVPNCreation", False), # Adding VPN configurations
-    "3.2.1.17": ("allowCellularPlanModification", False), # Modifying cellular data settings
-    "3.2.1.18": ("allowUSBRestrictedMode", False), # USB accessories while locked
-    "3.2.1.19": ("allowHostPairing", False), # Pairing with non-Configurator hosts
-    "3.2.1.20": ("allowOpenFromManagedToUnmanaged", False),  # Managed to unmanaged docs
-    "3.2.1.21": ("allowOpenFromUnmanagedToManaged", False),  # Unmanaged to managed docs
-    "3.2.1.22": ("airdropUnmanaged", True), # AirDrop as unmanaged
-    "3.2.1.23": ("allowActivityContinuation", False), # Handoff
+    "3.1.1": ("PayloadRemovalDisallowed", True), # Prevenire eliminare cont
+    "3.2.1.2": ("allowAssistantWhileLocked", False), # Siri pe lock screen
+    "3.2.1.3": ("allowCloudBackup", False), # Backup iCloud
+    "3.2.1.4": ("allowCloudDocumentSync", False), # Documente & date iCloud
+    "3.2.1.5": ("allowCloudKeychainSync", False), # Breloc iCloud
+    "3.2.1.6": ("allowManagedAppsCloudSync", False), # iCloud sync pt applicatii securizate
+    "3.2.1.7": ("allowUSBDriveFileSystemAccess", False), # Drive USB in applicatia Files
+    "3.2.1.8": ("allowNetworkDriveFileSystemAccess", False), # Drive Network in aplicatia Files
+    "3.2.1.9": ("forceEncryptedBackup", True), # Criptare fortata backup-uri
+    "3.2.1.11": ("allowEraseContentAndSettings", False), # Stergere intreg continutul si setarile
+    "3.2.1.12": ("allowUntrustedTLSPrompt", False), # Neacceptare TLS
+    "3.2.1.14": ("allowProfileInstallation", False), # Instalare Profile de Configuratie
+    "3.2.1.15": ("allowVPNCreation", False), # Adaugare configuratii VPN
+    "3.2.1.17": ("allowCellularPlanModification", False), # Modificare setari de date celulare
+    "3.2.1.18": ("allowUSBRestrictedMode", False), # Accesorii USB cat timp telefonul e inchis
+    "3.2.1.19": ("allowHostPairing", False), # Asociere cu gazda non-Configurator
+    "3.2.1.20": ("allowOpenFromManagedToUnmanaged", False),  #Posibilitatea de a scrie valori din aplicatii securizate in cele nesecurizate
+    "3.2.1.21": ("allowOpenFromUnmanagedToManaged", False),  #Posibilitatea de a scrie valori din aplicatii nesecurizate in cele securizate
+    "3.2.1.22": ("airdropUnmanaged", True), # Setare AirDrop ca nesecurizat
+    "3.2.1.23": ("allowActivityContinuation", False), # Continuare utilizare aplicatie pe alt dispozitiv Apple
     "3.2.1.25": ("allowAutoFillPasswordAndCreditCard", False), # Require Face ID/Touch ID before AutoFill
-    "3.2.1.26": ("forceWatchWristDetection", True), # Apple Watch wrist detection
-    "3.2.1.27": ("allowDeviceNameModification", False), # Setting up new nearby devices — proxy key
-    "3.2.1.28": ("allowPasswordProximityRequests", False), # Proximity password sharing
-    "3.2.1.30": ("allowControlCenter", False), # Control Center on lock screen
-    "3.2.1.31": ("allowNotificationCenter", False), # Notification Center on lock screen
-    "3.2.2.1":  ("safariAllowFraudWarning", True), # Safari fraud warning
-    "3.2.2.2":  ("safariCookiePolicy", 2), # Safari cookies
-    "3.10.1":   ("allowIntelligenceExtensions", False), # External AI extensions
-    "3.10.2":   ("allowIntelligenceNotesSummarization", False), # Notes summarization
-    "3.10.3":   ("allowIntelligenceMailSummarization", False), # Mail summarization
-    "3.10.4":   ("allowIntelligenceWritingTools", False), # Writing Tools
+    "3.2.1.26": ("forceWatchWristDetection", True), # Detectie pe incheietura pt Apple Watch
+    "3.2.1.27": ("allowDeviceNameModification", False), # Configurarea de noi dispozitive din apropiere — cheie proxy
+    "3.2.1.28": ("allowPasswordProximityRequests", False), # Partajarea parolei de proximitate
+    "3.2.1.30": ("allowControlCenter", False), # Utilizare Control Center pe lock screen
+    "3.2.1.31": ("allowNotificationCenter", False), # Utilizare Notification Center pe lock screen
+    "3.2.2.1":  ("safariAllowFraudWarning", True), # Avertizare Safari de frauda
+    "3.2.2.2": ("safariCookiePolicy", 2), # Cookie-uri Safari doar pt site-ul curent
+    "3.10.1": ("allowIntelligenceExtensions", False), # Extensii Externe AI
+    "3.10.2": ("allowIntelligenceNotesSummarization", False), # Rezumat Notes
+    "3.10.3": ("allowIntelligenceMailSummarization", False), # Rezumat Notes
+    "3.10.4": ("allowIntelligenceWritingTools", False), # Instrumente de Scriere
 }
 
 MAIL_RULE_MAP = {
-    "2.7.1": ("PreventMove", True),   # Prevent moving messages between accounts
-    "2.7.2": ("allowMailDrop", False),  # Disable Mail Drop
+    "2.7.1": ("PreventMove", True), # Interzicere mutarea mesajelor intre conturi
+    "2.7.2": ("allowMailDrop", False),  # Dezactivare Mail Drop
 }
 
 INST_MAIL_RULE_MAP = {
-    "3.7.1": ("PreventMove", True),  # Prevent moving messages between accounts
-    "3.7.2": ("allowMailDrop", False),  # Disable Mail Drop
+    "3.7.1": ("PreventMove", True),  # Interzicere mutarea mesajelor intre conturi
+    "3.7.2": ("allowMailDrop", False),  # Dezactivare Mail Drop
 }
 
-# Rules that are Manual in the benchmark
+# Reguli manuale din lista
 MANUAL_RULES = {
     "2.1.2": "Controls when profile can be removed",
     "2.2.1.4": "Personalized ads, cannot verify post-install",

@@ -5,7 +5,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXE_PATH = os.path.join(BASE_DIR, "executables")
 
 def run_ios_audit():
-    # Use the absolute path to the executable
+    # Utilizare cale absoluta
     exe_path = os.path.join(BASE_DIR, "ideviceinfo.exe")
 
     try:
@@ -17,7 +17,6 @@ def run_ios_audit():
             shell=True
         )
 
-        # Log exactly what the hardware said to the Python console
         print(f"Hardware Response: {result.stdout.strip()}")
 
         return result.stdout.strip()

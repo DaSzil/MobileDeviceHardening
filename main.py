@@ -10,6 +10,7 @@ from core.profile_gen import generate_cis_profile, get_all_profile_rules
 from core.android_handler import AndroidHandler
 from core.process import HardeningProcess
 
+# Cai absolute
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(BASE_DIR, "profiles")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -29,7 +30,7 @@ audit_state = {
     "results":  [],
     "device":   {},
     "score":    None,
-    "platform": None,  # "android", "ios", or None
+    "platform": None,
 }
 
 audit_lock = threading.Lock()
@@ -61,6 +62,7 @@ def detect_all_devices():
             if len(parts) >= 2 and parts[1] == "device":
                 serial = parts[0]
 
+                # Excludem intrările mDNS duplicate
                 if "_adb-tls-connect._tcp" in serial:
                     continue
                 try:
@@ -76,6 +78,7 @@ def detect_all_devices():
                     continue
                 seen_hw_ids.add(hw_id)
 
+                # Preluare nume
                 try:
                     name_result = subprocess.run(
                         ["adb", "-s", serial, "shell", "getprop", "ro.product.marketname"],
@@ -140,7 +143,6 @@ def detect_platform():
     Detecteaza ce tip de dispozitiv este conectat.
     Returneaza "android", "ios", sau None daca nu este nimic conectat.
     """
-    # Verificam Android prin ADB
     devices = detect_all_devices()
     if not devices:
         return None
@@ -202,12 +204,8 @@ def pair_ios_device():
     return False
 
 
-
-
 def check_device_connected():
     return len(detect_all_devices()) > 0
-
-
 
 
 def get_device_info(platform, serial=None):
@@ -262,17 +260,16 @@ def get_device_info(platform, serial=None):
             "platform": "iOS",
             "manufacturer": "Apple",
             "model": iprop("HardwareModel"),
-            "android": iprop("ProductVersion"),
-            "patch": "N/A",
+            "android": iprop("ProductVersion"), # Camp refolosit pt iOS
+            "patch": "N/A", # Conceptul nu există pe iOS
             "serial": iprop("SerialNumber"),
         }
 
     return {}
 
 
-
-
 def pair_android_wireless(ip, pairing_port, pairing_code, connect_port):
+    # Pas 1: Asociere SPAKE2 pe portul temporar de asociere
     result = subprocess.run(
         ["adb", "pair", f"{ip}:{pairing_port}", pairing_code],
         capture_output=True,
@@ -282,7 +279,7 @@ def pair_android_wireless(ip, pairing_port, pairing_code, connect_port):
     if "Successfully paired" not in result.stdout:
         return False, None, result.stdout + result.stderr
 
-    # Use the explicit connect port the user provided
+    # Pas 2: Conectare pe portul ADB permanent
     connect = subprocess.run(
         ["adb", "connect", f"{ip}:{connect_port}"],
         capture_output=True,
@@ -295,13 +292,13 @@ def pair_android_wireless(ip, pairing_port, pairing_code, connect_port):
             text=True,
             timeout=5
         )
+        # Seria extrasa din lista de dispozitive
         for line in devices.stdout.splitlines():
             if ip in line and "device" in line:
                 serial = line.split()[0]
                 return True, serial, connect.stdout
 
     return False, None, f"Paired but could not connect: {connect.stdout}"
-
 
 
 def run_audit_task():
@@ -399,7 +396,7 @@ def get_local_ip():
         return "127.0.0.1"
 
 
-# Routing for Flask
+# Rutari pentru Flask
 @app.route("/")
 def index():
     return render_template("dashboard.html")
@@ -417,12 +414,10 @@ def run_audit():
     return jsonify({"message": "Audit started"})
 
 
-
 @app.route("/api/status")
 def get_status():
     with audit_lock:
         return jsonify(audit_state)
-
 
 
 @app.route("/api/reset", methods=["POST"])
@@ -436,16 +431,14 @@ def reset_audit():
     return jsonify({"message": "Reset"})
 
 
-
 @app.route("/api/ping_device")
 def ping_device():
     devices = detect_all_devices()
     return jsonify({
         "connected": len(devices) > 0,
         "devices": devices,
-        "platform": devices[0]["platform"] if devices else None # Partea veche a codului
+        "platform": devices[0]["platform"] if devices else None
     })
-
 
 
 @app.route('/api/remediate', methods=['POST'])
@@ -465,11 +458,11 @@ def remediate():
     else:
         return jsonify({"status": "error", "message": f"Rule {rule_id} cannot be auto-remediated."}), 400
 
+
 @app.route("/api/ios/profile_rules")
 def ios_profile_rules():
     institutional = request.args.get("institutional", "false").lower() == "true"
     return jsonify(get_all_profile_rules(institutional= institutional))
-
 
 
 @app.route("/api/ios/generate_profile", methods=["POST"])
@@ -494,8 +487,6 @@ def generate_ios_profile():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-
-
 @app.route("/api/android/wireless_pair", methods=["POST"])
 def android_wireless_pair():
     data = request.json or {}
@@ -511,8 +502,6 @@ def android_wireless_pair():
     if success:
         return jsonify({"status": "success", "serial": serial})
     return jsonify({"status": "error", "message": output}), 500
-
-
 
 
 @app.route("/api/ios/push_profile", methods=["POST"])
@@ -540,7 +529,6 @@ def push_ios_profile():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 @app.route("/api/unpair/android", methods=["POST"])
@@ -582,7 +570,6 @@ def unpair_ios():
             return jsonify({"status": "error", "message": result.stdout + result.stderr}), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 
 if __name__ == "__main__":

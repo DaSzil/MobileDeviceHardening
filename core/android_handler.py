@@ -30,12 +30,12 @@ class AndroidHandler:
             result = subprocess.run(
                 cmd,
                 shell=False,
-                capture_output=True,            # Preia si stdout, dar si stderr
-                text=True,                      # Transforma octetii in string automat
-                timeout=10,                     # Daca dupa 10s nu se pot prelua informatiile, comanda se va opri
-                encoding = 'utf-8',             # Folosim UTF-8 pentru decodare
-                errors = 'replace'              # Daca nu se pot deocoda octeti, vor fi setati ca si ?, pentru a nu
-            )                                   # bloca programul
+                capture_output=True, # Preia si stdout, dar si stderr
+                text=True, # Transforma octetii in string automat
+                timeout=10, # Daca dupa 10s nu se pot prelua informatiile, comanda se va opri
+                encoding = 'utf-8', # Folosim UTF-8 pentru decodare
+                errors = 'replace' # Daca nu se pot deocoda octeti, vor fi setati ca si ?, pentru a nu bloca programul
+            )
 
             # Afiseaza erori legate de adb daca valoarea este diferita de 0
             if result.returncode != 0 and result.stderr:

@@ -83,12 +83,12 @@ function positionTooltip(e) {
     let x = e.clientX + padding;
     let y = e.clientY + padding;
 
-    // Flip left if tooltip would overflow right edge
+    // Schimba la stanga daca tooltip-ul ar depasi marginea dreapta
     if (x + boxWidth > window.innerWidth - padding) {
         x = e.clientX - boxWidth - padding;
     }
 
-    // Flip up if tooltip would overflow bottom edge
+    // Schimba spre sus daca tooltip-ul ar depasi marginea de jos
     const boxHeight = tooltip.offsetHeight;
     if (y + boxHeight > window.innerHeight - padding) {
         y = e.clientY - boxHeight - padding;
@@ -182,7 +182,7 @@ function pollStatus() {
                 revealEl('score-section', 500);
                 revealEl('results-section', 560);
 
-                // Stagger each device-field inside device-info
+                // Pozitionarea fiecarui device-field din device-info
                 document.querySelectorAll('.device-field').forEach((el, i) => {
                   el.classList.remove('reveal');
                   void el.offsetWidth;
@@ -190,7 +190,7 @@ function pollStatus() {
                   el.style.animationDelay = (i * 60) + 'ms';
                 });
 
-                // Results heading
+                // heading rezultate
                 const resultsHeading = document.querySelector('#results-section h1');
                 if (resultsHeading) {
                   resultsHeading.classList.remove('reveal');
@@ -198,7 +198,7 @@ function pollStatus() {
                   resultsHeading.classList.add('reveal');
                 }
 
-                // Store results on the device entry
+                // Salvare rezultate la conectarea dispozitivului
                 if (activeDeviceSerial && deviceRegistry.has(activeDeviceSerial)) {
                     const dev    = deviceRegistry.get(activeDeviceSerial);
                     dev.score    = data.score;
@@ -271,7 +271,7 @@ function renderScore(score) {
 }
 
 
-// Debouncer
+// Debouncer buton
 let searchDebounceTimer = null;
 
 document.getElementById('search-input').addEventListener('input', () => {
@@ -286,15 +286,15 @@ function applyFilters() {
 
   let results = [...allResults];
 
-  // Filter by status
+  // Filtrare dupa status
   if (filter !== 'ALL' && filter !== '') results = results.filter(r => r.status === filter);
 
-  // Search by title or ID
+  // Filtrare dupa titlu sau ID
   if (search) results = results.filter(r =>
     r.title?.toLowerCase().includes(search) || r.id?.toLowerCase().includes(search)
   );
 
-  // Sort
+  // Sortare
   if (sort === 'FAIL_FIRST')   results.sort((a, b) => (a.status === 'FAIL'   ? -1 : 1));
   if (sort === 'PASS_FIRST')   results.sort((a, b) => (a.status === 'PASS'   ? -1 : 1));
   if (sort === 'MANUAL_FIRST') results.sort((a, b) => (a.status === 'MANUAL' ? -1 : 1));
@@ -318,7 +318,7 @@ function renderResults(results) {
         else if (r.status === 'FAIL') cls = 'fail';
         else if (r.status === 'N/A') cls = 'na';
 
-        // Checkbox logic
+        // Logica Checkbox
         let checkboxHtml = "";
         if (r.fixable && r.status === "FAIL") {
             const isChecked = r.selected ? 'checked' : '';
@@ -368,7 +368,7 @@ function renderResults(results) {
         tbody.appendChild(dr);
         const childCb = tr.querySelector('.remediation-checkbox');
 
-        // Attach tooltip to status cell for MANUAL rows
+        // Atasare tooltip-uri pt reguli manuale
         if (r.status === 'MANUAL' && r.steps && r.steps.length > 0) {
             const statusCell = tr.querySelectorAll('td')[4];
             statusCell.style.cursor = 'help';
@@ -381,30 +381,24 @@ function renderResults(results) {
 
         if (childCb) {
             childCb.addEventListener('change', (e) => {
-                // 1. Save the state to the data array
                 updateSelection(r.id, e.target.checked);
 
-                // 2. Update the Master Checkbox state
                 const masterCb = document.getElementById('select-all-checkbox');
                 if (masterCb) {
-                    // Count how many are currently checked in the data array
+
                     const totalFixable = allResults.filter(rule => rule.fixable && rule.status === "FAIL").length;
                     const selectedCount = allResults.filter(rule => rule.selected).length;
 
-                    // Scenario: Deselected all manually
                     if (selectedCount === 0) {
                         masterCb.checked = false;
                         masterCb.indeterminate = false;
                     }
-                    // Scenario: Selected all manually
                     else if (selectedCount === totalFixable) {
                         masterCb.checked = true;
                         masterCb.indeterminate = false;
                     }
-                    // Scenario: "1 or more" but not all (Optional: use indeterminate dash)
                     else {
-                        masterCb.checked = true; // Your specific request: 1 or more = checked
-                        // masterCb.indeterminate = true; // Use this instead if you want a dash (-)
+                        masterCb.checked = true;
                     }
                 }
             });
@@ -529,7 +523,6 @@ tab.innerHTML = `
     </div>
 `;
 
-// Attach click via addEventListener — no inline onclick
 const unpairBtn = tab.querySelector('.tab-unpair-btn');
 unpairBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -578,7 +571,7 @@ unpairBtn.addEventListener('click', (e) => {
     });
 }
 
-// Custom Notifications
+// Notificari specifice
 function showToast(message) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -591,7 +584,7 @@ function showToast(message) {
 function showModal(message) {
     return new Promise((resolve) => {
         document.getElementById('modal-message').innerHTML = message;
-        document.getElementById('custom-modal').style.display = 'flex';  // must be flex, not block
+        document.getElementById('custom-modal').style.display = 'flex';
         document.getElementById('modal-confirm').onclick = () => {
             closeModal();
             resolve(true);
@@ -606,7 +599,7 @@ function closeModal() {
 let profileRules = [];
 
 function openProfileModal() {
-    // Load rules from backend if not already loaded
+    // Incarcare reguli daca nu s-a facut pana acum
     if (profileRules.length === 0) {
         fetch('/api/ios/profile_rules')
             .then(r => r.json())
@@ -628,7 +621,7 @@ function renderProfileRules(rules) {
     const container = document.getElementById('profile-rule-list');
     container.innerHTML = '';
 
-    // Group rules by their group field
+    // Grupare reguli dupa campul lor group
     const groups = {};
     rules.forEach(r => {
         if (!groups[r.group]) groups[r.group] = [];
@@ -636,7 +629,7 @@ function renderProfileRules(rules) {
     });
 
     Object.entries(groups).forEach(([groupName, groupRules]) => {
-        // Group header
+        // Header group
         const header = document.createElement('div');
         header.style.cssText = `
             padding: 6px 12px;
@@ -651,7 +644,7 @@ function renderProfileRules(rules) {
         header.textContent = groupName;
         container.appendChild(header);
 
-        // Rules in group
+        // Reguli din group
         groupRules.forEach(rule => {
             const row = document.createElement('label');
             row.style.cssText = `
@@ -678,7 +671,6 @@ function renderProfileRules(rules) {
         });
     });
 
-    // Sync select-all state
     document.getElementById('profile-select-all').checked = true;
 }
 

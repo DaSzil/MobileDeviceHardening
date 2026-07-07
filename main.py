@@ -93,7 +93,8 @@ def detect_all_devices():
                         )
                         name = name_result.stdout.strip() or serial
 
-                except Exception as e:
+                except Exception:
+                    print(f"[ERR] Could not retrieve device name for {serial}.")
                     name = serial
 
 
@@ -102,8 +103,12 @@ def detect_all_devices():
                     "platform": "android",
                     "name": name
                 })
-    except Exception:
-        pass
+    except FileNotFoundError:
+        print("[ERR] ADB not found.")
+    except subprocess.TimeoutExpired:
+        print("[ERR] ADB device timed out.")
+    except Exception as e:
+        print("[ERR] ADB error: {}".format(e))
 
     # iOS
     try:
@@ -130,8 +135,12 @@ def detect_all_devices():
                     "platform": "ios",
                     "name":     name
                 })
-    except Exception:
-        pass
+    except FileNotFoundError:
+        print("[ERR] idevice_id not found.")
+    except subprocess.TimeoutExpired:
+        print("[ERR] idevice_id timed out.")
+    except Exception as e:
+        print("[ERR] iOS device detection failed: {}".format(e))
 
     return devices
 
@@ -224,7 +233,8 @@ def get_device_info(platform, serial=None):
                     timeout=5
                 )
                 return result.stdout.strip() or "Unknown"
-            except Exception:
+            except Exception as e:
+                print(f"[ERR] Failed to retrieve property {key}: {e}")
                 return "Unknown"
 
         marketname = prop("ro.product.marketname")
@@ -253,7 +263,8 @@ def get_device_info(platform, serial=None):
                     shell = True
                 )
                 return result.stdout.strip() or "Unknown"
-            except Exception:
+            except Exception as e:
+                print(f"[ERR] Failed to retrieve property {key}: {e}")
                 return "Unknown"
 
         return {
@@ -383,18 +394,6 @@ def run_audit_task():
                                         "status": "FAIL",
                                         "found": str(e)
                                      }]
-
-# Preluare IP curent pentru certificat https
-def get_local_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except Exception:
-        return "127.0.0.1"
-
 
 # Rutari pentru Flask
 @app.route("/")

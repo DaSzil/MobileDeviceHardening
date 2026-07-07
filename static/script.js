@@ -725,7 +725,6 @@ function downloadProfile() {
 
 
 function updateSelection(id, isChecked) {
-    // Find the rule in our main data array and update its 'selected' property
     const rule = allResults.find(r => r.id === id);
     if (rule) {
         rule.selected = isChecked;
@@ -845,7 +844,6 @@ async function confirmUnpair() {
 
 document.querySelectorAll('#wireless-modal input').forEach(input => {
     input.addEventListener('input', () => {
-        // Allow dots for IP, digits only otherwise
         if (input.id === 'wp-ip') {
             input.value = input.value.replace(/[^0-9.]/g, '');
         } else {

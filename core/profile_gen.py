@@ -220,11 +220,34 @@ def generate_cis_profile(selected_rule_ids=None, output_path="cis_hardening.mobi
             "PayloadVersion": 1,
             "PayloadDisplayName": "Mail Restrictions",
             "PayloadDescription": "CIS iOS 26; Mail rules",
+            "EmailAccountDescription": "CIS Hardening Policy",
+            "EmailAccountType": "EmailTypeIMAP",
+            "EmailAccountName": "CIS Hardening Policy",
+            "EmailAddress": "audit@localhost",
+            "IncomingMailServerAuthentication": "EmailAuthPassword",
+            "IncomingMailServerHostName": "localhost",
+            "IncomingMailServerPortNumber": 993,
+            "IncomingMailServerUseSSL": True,
+            "IncomingMailServerUsername": "audit",
+            "OutgoingMailServerAuthentication": "EmailAuthPassword",
+            "OutgoingMailServerHostName": "localhost",
+            "OutgoingMailServerPortNumber": 587,
+            "OutgoingMailServerUseSSL": True,
+            "OutgoingMailServerUsername": "audit",
         }
         for rule_id, (key, value) in selected_mail.items():
             mail_payload[key] = value
         payloads.append(mail_payload)
 
+    if not payloads:
+        payloads.append({
+            "PayloadType": "com.apple.applicationaccess",
+            "PayloadIdentifier": "com.audit.cis.ios26.restrictions.base",
+            "PayloadUUID": _new_uuid(),
+            "PayloadVersion": 1,
+            "PayloadDisplayName": "Base Restrictions",
+            "PayloadDescription": "Required placeholder payload",
+        })
 
     profile = {
         "PayloadDisplayName":
